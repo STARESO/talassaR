@@ -1,4 +1,28 @@
-# Connection to PostgresSQL database with R
+#' ---
+#' title : "talassaR - postgresql connection"
+#' author : Aubin Woehrel
+#' creation date : 2025-08-01
+#' last modification : 2025-09-15
+#' ---
+#'
+#' =============================================================================
+#' 
+#' talassaR : 
+#' postgresql connection
+#' 
+#' Description : 
+#' Connects to postgreSQL database on local machine. Enables the creation of 
+#' datasets in the postgreDB using R, and updates them if needed.
+#' =============================================================================
+
+
+# Initialization ----
+
+## Clean up and working directory ----
+rm(list = ls())
+
+## Library imports ----
+
 
 # Libraries
 library("RPostgres")

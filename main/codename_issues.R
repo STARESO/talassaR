@@ -1,0 +1,160 @@
+#' ---
+#' title : "talassaR - codename issues"
+#' author : Aubin Woehrel
+#' creation date : 2025-09-16
+#' last modification : 2025-09-18
+#' ---
+#'
+#' =============================================================================
+#' 
+#' talassaR : 
+#' Code name issues
+#' 
+#' Description : 
+#' Small script to check lines where code of activity does not correspond to the
+#' right activity name
+#' 
+#' =============================================================================
+
+
+# Initialization ----
+
+## Clean up and working directory ----
+rm(list = ls())
+
+## Library imports ----
+
+# Data import and tidying
+library("dplyr")
+library("tidyr")
+
+# Spatial
+library("sf")
+
+## Sourcing paths and constants ----
+# source("R/paths.R")
+
+## Importing data ----
+survols_usages <- readRDS("data/raw/us_med_pnmcca_observatoire_survols_usages.rds")
+
+
+
+# Code verifications ----
+
+code_vs_nom <- survols_usages %>%
+  select(cod_act, act) %>%
+  group_by(cod_act, act) %>%
+  summarize(n = n()) %>%
+  arrange(cod_act)
+
+code_vs_nom_byyear <- survols_usages %>%
+  select(cod_act, act, annee) %>%
+  group_by(cod_act, act, annee) %>%
+  summarize(erreur_code_n = n()) %>%
+  arrange(cod_act, annee)
+
+
+# Export code_vs_nom for future fusion
+output_ref <- FALSE
+input_ref <- TRUE
+
+if (output_ref) {
+  write.csv(code_vs_nom, "data/processed/code_vs_nom_output.csv")
+} 
+
+if (input_ref) {
+  code_ref <- read.csv("data/processed/code_ref.csv", sep = ";")
+}
+
+
+# Merging main dataset with error descriptions
+
+survols_usages_errorref <- left_join(survols_usages, code_ref, by = join_by(act, cod_act))
+
+t1 <- survols_usages_errorref %>%
+  filter(erreur_code == "invalide") %>%
+  group_by(annee, mois, cod_act, act, erreur_code, erreur_code_description, erreur_code_suggestion) %>%
+  summarize(erreur_code_n = n()) %>%
+  relocate(erreur_code_n, .after = erreur_code) %>%
+  mutate(mois = case_when(
+    mois == "June" ~ "Juin",
+    mois == "July" ~ "Juillet",
+    mois == "August" ~ "Aout", 
+    mois == "September" ~ "Septembre"
+  )) %>% 
+  mutate(mois = factor(mois, levels = c("Juin", "Juillet", "Aout", "Septembre"))) %>%
+  arrange(annee, mois, cod_act, act)
+
+
+errorref_simple <- survols_usages_errorref %>%
+  filter(erreur_code == "invalide") %>%
+  select(id_acti, date, annee, mois, nom_acti, act, cod_act, erreur_code, erreur_code_description, 
+         erreur_code_suggestion, lon_x, lat_y)
+
+
+
+
+
+
+# Exporting data of errors per date :
+
+# Convert the DataFrame to a spatial object
+spatial_data <- st_as_sf(
+  errorref_simple,
+  coords = c("lon_x", "lat_y"),  # Specify longitude and latitude columns
+  crs = 4326  # WGS84 coordinate reference system (standard for lat/lon)
+)
+
+
+# Ensure the date column is in character format
+errorref_simple$date <- as.character(errorref_simple$date)
+errorref_simple$annee <- as.character(errorref_simple$annee)  # Ensure 'annee' is character
+
+# Convert to spatial object
+spatial_data <- st_as_sf(
+  errorref_simple,
+  coords = c("lon_x", "lat_y"),
+  crs = 4326
+)
+
+# Get unique years
+unique_years <- unique(errorref_simple$annee)
+
+# Loop through each year
+for (year in unique_years) {
+  # Create a folder for the year if it doesn't exist
+  year_folder <- file.path("data/processed/survols_verification", year)
+  if (!dir.exists(year_folder)) {
+    dir.create(year_folder)
+  }
+  
+  # Get all dates for the current year
+  dates_in_year <- unique(errorref_simple$date[errorref_simple$annee == year])
+  
+  # Loop through each date in the year
+  for (i in seq_along(dates_in_year)) {
+    date_wanted <- as.Date(dates_in_year[i])
+    print(date_wanted)
+    
+    # Filter the spatial data for the current date
+    subdata_spatial <- spatial_data %>%
+      filter(date == as.character(date_wanted)) %>%
+      rename(valide = erreur_code,
+             description = erreur_code_description,
+             suggestion = erreur_code_suggestion)
+    
+    # Create a filename with the survey number and date (e.g., 01_2024-08-30)
+    survey_number <- sprintf("%02d", i)  # Formats as two digits (01, 02, etc.)
+    shp_filename <- file.path(
+      year_folder,
+      paste0("erreurs_survol_", survey_number, "_", format(date_wanted, "%Y-%m-%d"), ".shp")
+    )
+    
+    # Export the subdataset as a Shapefile
+    st_write(subdata_spatial, shp_filename, driver = "ESRI Shapefile")
+    
+    # Print confirmation
+    message(paste("Exported Shapefile:", shp_filename))
+  }
+}
+  

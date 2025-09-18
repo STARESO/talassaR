@@ -1,5 +1,5 @@
 #' ---
-#' title : "talassaR - Donia verification"
+#' title : "talassaR - donia verification"
 #' author : Aubin Woehrel
 #' creation date : 2025-09-15
 #' last modification : 2025-09-15
@@ -25,23 +25,73 @@ rm(list = ls())
 
 ## Library imports ----
 
-# Data tidying
+# Data import and tidying
+library("readr")
 library("dplyr")
 library("tidyr")
 
-# Progress bar
-library("progress")
-
 ## Sourcing paths and constants ----
-source("R/paths.R")
-#source("R/constants.R")
-source("R/taxalist.R")
+# source("R/paths.R")
 
+## Importing data ----
 
-library("readr")
 donia <- read_delim(
   "data/raw/mouillage_donia/donia.csv", 
   delim = ";", 
   escape_double = FALSE, 
   trim_ws = TRUE
 )
+
+# Preprocess ----
+
+## First investigations ----
+spec(donia)
+skimr::skim(donia)
+names(donia)
+
+## Small transformations ----
+donia_test <- donia %>%
+  separate_wider_delim(
+    col = date_mouillage_central_european_time,
+    delim = " ",
+    names = c("date", "time")
+  ) %>%
+  mutate(date = as.Date(date, format = "%d/%m/%Y"))
+
+t1 <- donia_test %>%
+  group_by(nom) %>%
+  summarize(n = n()) %>%
+  arrange(nom, desc(n))
+
+t1sum <- t1 %>%
+  mutate(type = case_when(
+    nom == "/" ~ "unnamed",
+    TRUE ~ "named"
+  )) %>%
+  group_by(type) %>%
+  summarize(n = sum(n))
+
+t1sum
+
+
+
+t2 <- donia_test %>%
+  group_by(nom, date) %>%
+  summarize(n = n()) %>%
+  arrange(nom, desc(n), date)
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

@@ -79,6 +79,8 @@ t2 <- donia_test %>%
   group_by(nom, date) %>%
   summarize(n = n()) %>%
   arrange(nom, desc(n), date)
+
+iwsudfjhpwsiuod <- 1
   
   
   

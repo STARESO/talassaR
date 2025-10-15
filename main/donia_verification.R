@@ -31,6 +31,12 @@ library("dplyr")
 library("tidyr")
 library("stringr")
 
+# Data representations
+library("ggplot2")
+library("ggbeeswarm")
+library("ggExtra")
+library("ggpubr")
+
 # Spatial 
 library("sf")
 library("leaflet")
@@ -104,7 +110,10 @@ t2 <- donia %>%
 type_navire <- donia %>%
   select(type_navire, type_navire_brut) %>%
   group_by_all() %>%
-  summarize(n = n())
+  summarize(n = n()) %>%
+  arrange(desc(type_navire), desc(n))
+
+write.csv2(type_navire, "data/processed/donia_type_navire.csv")
 
 type_na_vs_value <-   type_navire %>%
   mutate(type_navire_brut = case_when(
@@ -134,16 +143,19 @@ donia_spatial <- st_as_sf(donia, coords = c("lon_x", "lat_y"), crs = 4326)
 
 ## Variable distinction map ----
 
-category_map <- function(focus_var, compressor = 1) {
+category_map <- function(data_spatial, focus_var, compressor = 1) {
+  # Compressor argument : strength of log scaling for continuous gray scale representation. 
+  # (Only visual, no effect on real data on popup)
+  
   # Unique values of variable of interest (excluding NA)
-  unique_values <- donia_spatial %>%
+  unique_values <- data_spatial %>%
     pull({{ focus_var }}) %>%
     na.omit() %>%
     unique()
   
-  # Choose palette based on the type and number of unique values
-  if (is.numeric(donia_spatial %>% pull({{ focus_var }}))) { 
-    all_focused <- donia_spatial[[focus_var]]
+  # Choosing palette based on the type and number of unique values
+  if (is.numeric(data_spatial %>% pull({{ focus_var }}))) { 
+    all_focused <- data_spatial[[focus_var]]
     all_focused <- log(1 + compressor * all_focused)
     # For numeric variables, use a gradient palette
     pal <- colorNumeric(
@@ -173,14 +185,14 @@ category_map <- function(focus_var, compressor = 1) {
     
     # Precomputing colors
     colors <- ifelse(
-      is.na(donia_spatial[[focus_var]]),
+      is.na(data_spatial[[focus_var]]),
       "red",  # Color for NA values
-      pal(donia_spatial[[focus_var]])  # Color for non-NA values
+      pal(data_spatial[[focus_var]])  # Color for non-NA values
     )
   }
   
-  # Map
-  map_optimized <- leaflet(donia_spatial) %>%
+  # Leaflet Map
+  map_optimized <- leaflet(data_spatial) %>%
     addProviderTiles(providers$Esri.WorldImagery) %>%
     addPolygons(data = pnm_borders, color = "lightblue", weight = 10) %>%
     addCircleMarkers(
@@ -207,27 +219,217 @@ category_map <- function(focus_var, compressor = 1) {
   return(map_optimized)
 }
 
-# Example usage
-map_region <- category_map("region")
+# Variable per variable
+map_region <- category_map(donia_spatial, "region")
 map_region
 
-map_type <- category_map("type_navire")
+map_type <- category_map(donia_spatial, "type_navire")
 map_type
 
-map_sous_type <- category_map("type_navire_brut")
+map_sous_type <- category_map(donia_spatial, "type_navire_brut")
 map_sous_type  
 
-map_annee <- category_map("annee_mouillage")
+map_annee <- category_map(donia_spatial, "annee_mouillage")
 map_annee
 
-map_masse_eau <- category_map("code_masse_eau")
+map_masse_eau <- category_map(donia_spatial, "code_masse_eau")
 map_masse_eau  
 
-map_proba_impact <- category_map("probabilite_impact", compressor = 10)
+map_proba_impact <- category_map(donia_spatial, "probabilite_impact", compressor = 10)
 map_proba_impact
 
-map_duree_mouillage <- category_map("duree_mouillage", compressor = 100)
+map_duree_mouillage <- category_map(donia_spatial, "duree_mouillage", compressor = 100)
 map_duree_mouillage
 
-map_duree_mouillage <- category_map("taille", compressor = 1)
-map_duree_mouillage
+map_taille <- category_map(donia_spatial, "taille", compressor = 1)
+map_taille
+
+
+# Checking per type : 
+
+# Cargo ships
+donia_spatial %>%
+  filter(type_navire_brut %in% c(
+    "cargo ship", "general cargo ship"
+  )) %>%
+  category_map(., "type_navire_brut")
+
+# Passenger ships
+donia_spatial %>%
+  filter(type_navire_brut %in% c(
+    "passenger ship", 
+    "passenger (cruise) ship", 
+    "passenger/ro-ro cargo ship"
+  )) %>%
+  category_map(., "type_navire_brut")
+
+# Diving ops
+donia_spatial %>%
+  filter(type_navire_brut %in% c(
+    "diving ops"
+  )) %>%
+  category_map(., "type_navire_brut")
+
+# Training ship
+donia_spatial %>%
+  filter(type_navire_brut %in% c(
+    "training ship"
+  )) %>%
+  category_map(., "type_navire_brut")
+
+# Yacht
+donia_spatial %>%
+  filter(type_navire_brut %in% c(
+    "yacht"
+  )) %>%
+  category_map(., "taille")
+
+
+# Resoblo format ----
+
+## Joining datasets ----
+
+# Import of donia-resoblo connections reference manually completed
+donia_resoblo <- read.csv2("data/processed/donia_resoblo.csv") %>%
+  select(-type_navire)
+
+# Adding generalist columns of code and intitule depending on level 
+donia_resoblo<- donia_resoblo %>%
+  mutate(
+    resoblo_intitule = case_when(
+      !is.na(resoblo_intitule_n1) ~ resoblo_intitule_n1,
+      TRUE ~ resoblo_intitule_n2
+    ), 
+    resoblo_code = case_when(
+      !is.na(resoblo_code_n1) ~ resoblo_code_n1,
+      TRUE ~ resoblo_code_n2
+    ),
+    resoblo_niveau = case_when(
+      !is.na(resoblo_code_n1) ~ 1,
+      TRUE ~ 2
+    )
+  )
+
+# New version of donia with resoblo info by left join
+donia <- donia %>%
+  filter(!is.na(type_navire_brut)) %>% # All non specified type_navire_brut are removed
+  left_join(., donia_resoblo, by = join_by("type_navire_brut"))
+
+# Checking amount of observations per resoblo level 2
+t1 <- donia %>%
+  select(resoblo_code_n2, resoblo_intitule_n2) %>%
+  group_by_all() %>%
+  summarize(n = n())
+
+# All NA for resoblo at level 2
+t2 <- donia %>%
+  filter(is.na(resoblo_code_n2)) %>%
+  select(
+    resoblo_intitule_n2, 
+    type_navire_brut, 
+    type_navire) %>%
+  group_by_all() %>%
+  summarize(n = n()) %>%
+  arrange(desc(n))
+
+
+# Filter out all lines without resoblo correspondance from dataset
+donia <- donia %>%
+  filter(!is.na(resoblo_intitule_n2))
+
+# Checking left over 
+t3 <- donia %>%
+  select(
+    type_navire,
+    type_navire_brut,
+    resoblo_intitule_n2, 
+    resoblo_intitule_n1,
+    resoblo_code_n2,
+    resoblo_code_n1
+  ) %>%
+  group_by_all() %>%
+  summarize(n = n()) %>%
+  select(n, everything()) %>%
+  arrange(desc(n)) %>%
+  ungroup()
+
+skimr::skim(donia) # A few boats without any size
+
+
+# Therefore, trying to see which categories do not have size :
+t4 <- donia %>%
+  filter(is.na(taille)) %>%
+  select(
+    type_navire_brut,
+    resoblo_intitule_n2, 
+    resoblo_intitule_n1,
+  ) %>%
+  group_by_all() %>%
+  summarize(n_na = n()) %>%
+  arrange(desc(n_na)) %>%
+  ungroup()
+
+# And then computing completion rate :
+t4 <- t3 %>% 
+  filter(type_navire_brut %in% t4$type_navire_brut) %>%
+  select(type_navire_brut, n) %>%
+  left_join(., t4) %>%
+  mutate(
+    resoblo_intitule = case_when(
+      !is.na(resoblo_intitule_n1) ~ resoblo_intitule_n1,
+      TRUE ~ resoblo_intitule_n2
+    ),
+    taux_completion_taille = round(((n - n_na)*100)/n, 1)
+  ) %>%
+  select(type_navire_brut, resoblo_intitule, n, n_na, taux_completion_taille) %>%
+  rename(na_taille = n_na)
+
+
+# Graphical representations of size of boats and time anchored for transfo thinking process
+ggplot(donia, aes(x = taille, y = "")) +
+  geom_beeswarm(method = 'center') + 
+  theme_pubr() + 
+  labs(y = "")
+
+ggplot(donia, aes(x = duree_mouillage, y = "")) +
+  geom_beeswarm(method = 'center') + 
+  theme_classic() + 
+  labs(y = "")
+
+g1 <- ggplot(donia, aes(x = taille, y = duree_mouillage)) +
+  geom_point(size = 1) +
+  theme_pubr() +
+  scale_y_reverse()
+ggMarginal(g1, type = "histogram", size = 3)
+
+g2 <- ggplot(donia, aes(x = taille, y = duree_mouillage)) +
+  geom_point(size = 1) +
+  theme_pubr() +
+  scale_y_continuous(transform = scales::compose_trans("log10", "reverse"))
+ggMarginal(g2, type = "histogram", size = 3)
+
+g3 <- ggplot(donia, aes(x = taille, y = duree_mouillage)) +
+  geom_point(size = 1) +
+  theme_pubr() +
+  scale_x_continuous(transform = "log10") +
+  scale_y_continuous(transform = scales::compose_trans("log10", "reverse"))
+ggMarginal(g3, type = "histogram", size = 3)
+
+g4 <- ggplot(donia, aes(x = taille, y = duree_mouillage)) +
+  geom_point(size = 1) +
+  theme_pubr() +
+  scale_x_continuous(transform = "log10", limits = c(10, 200)) +
+  scale_y_continuous(transform = scales::compose_trans("log10", "reverse"))
+ggMarginal(g4, type = "histogram", size = 3)
+
+
+# Respatialisation ----
+
+donia_spatial <- st_as_sf(donia, coords = c("lon_x", "lat_y"), crs = 4326)
+
+map_taille <- category_map(donia_spatial, "taille", compressor = 1)
+map_taille
+
+map_region <- category_map(donia_spatial, "region")
+map_region 
+

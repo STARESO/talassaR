@@ -423,13 +423,23 @@ g4 <- ggplot(donia, aes(x = taille, y = duree_mouillage)) +
 ggMarginal(g4, type = "histogram", size = 3)
 
 
-# Respatialisation ----
+# Spatialisation post-fusion check ----
 
 donia_spatial <- st_as_sf(donia, coords = c("lon_x", "lat_y"), crs = 4326)
+
+donia_folder <- file.path("data/processed/donia_folder/")
+if (!dir.exists(donia_folder)) {
+  dir.create(donia_folder)
+}
+
+st_write(donia_spatial, paste0(donia_folder, "/donia_talassa.shp"), driver = "ESRI Shapefile")
 
 map_taille <- category_map(donia_spatial, "taille", compressor = 1)
 map_taille
 
 map_region <- category_map(donia_spatial, "region")
 map_region 
+
+
+
 

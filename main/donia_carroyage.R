@@ -334,8 +334,3 @@ rect_cinquieme_lnall <- aggregate_donia_to_grid(
   layer_name = "rect_cinquieme_donia_lnall",
   overwrite  = TRUE
 )
-
-
-
-
-

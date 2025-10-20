@@ -2,7 +2,7 @@
 #' title : "talassaR - donia verification"
 #' author : Aubin Woehrel
 #' creation date : 2025-09-15
-#' last modification : 2025-10-14
+#' last modification : 2025-10-16
 #' ---
 #'
 #' =============================================================================
@@ -439,7 +439,3 @@ map_taille
 
 map_region <- category_map(donia_spatial, "region")
 map_region 
-
-
-
-

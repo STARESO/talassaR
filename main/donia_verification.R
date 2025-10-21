@@ -208,7 +208,6 @@ donia_spatial %>%
   )) %>%
   category_map(., "taille")
 
-
 # Resoblo format ----
 
 ## Joining datasets ----
@@ -278,7 +277,6 @@ t3 <- donia %>%
   ungroup()
 
 skimr::skim(donia) # A few boats without any size
-
 
 # Therefore, trying to see which categories do not have size :
 t4 <- donia %>%

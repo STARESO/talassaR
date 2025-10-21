@@ -2,7 +2,7 @@
 #' title : "talassaR - donia verification"
 #' author : Aubin Woehrel
 #' creation date : 2025-09-15
-#' last modification : 2025-10-16
+#' last modification : 2025-10-20
 #' ---
 #'
 #' =============================================================================
@@ -42,19 +42,20 @@ library("sf")
 library("leaflet")
 library("rlang")
 
-## Sourcing paths and constants ----
-# source("R/paths.R")
+## Sourcing local resources ----
+source("r/paths.R")
+source("r/fct_category_map.R") # Custom data spatial map function
 
 ## Importing data ----
 
 donia <- read_delim(
-  "data/raw/mouillage_donia/donia.csv", 
+  paths$raw_donia, 
   delim = ";", 
   escape_double = FALSE, 
   trim_ws = TRUE
 )
 
-pnm_borders <- sf::st_read("data/raw/pnm/N_ENP_PNM_S_000.shp") %>%
+pnm_borders <- sf::st_read(paths$raw_pnmcca_borders) %>%
   sf::st_transform(crs = 4326) %>%
   dplyr::filter(NOM_SITE == "cap Corse et Agriate")
 
@@ -113,7 +114,7 @@ type_navire <- donia %>%
   summarize(n = n()) %>%
   arrange(desc(type_navire), desc(n))
 
-write.csv2(type_navire, "data/processed/donia_type_navire.csv")
+write.csv2(type_navire, paths$output_donia_type_navire)
 
 type_na_vs_value <-   type_navire %>%
   mutate(type_navire_brut = case_when(
@@ -142,83 +143,6 @@ donia_spatial <- st_as_sf(donia, coords = c("lon_x", "lat_y"), crs = 4326)
 
 
 ## Variable distinction map ----
-
-category_map <- function(data_spatial, focus_var, compressor = 1) {
-  # Compressor argument : strength of log scaling for continuous gray scale representation. 
-  # (Only visual, no effect on real data on popup)
-  
-  # Unique values of variable of interest (excluding NA)
-  unique_values <- data_spatial %>%
-    pull({{ focus_var }}) %>%
-    na.omit() %>%
-    unique()
-  
-  # Choosing palette based on the type and number of unique values
-  if (is.numeric(data_spatial %>% pull({{ focus_var }}))) { 
-    all_focused <- data_spatial[[focus_var]]
-    all_focused <- log(1 + compressor * all_focused)
-    # For numeric variables, use a gradient palette
-    pal <- colorNumeric(
-      palette = "Greys",  # or "plasma", "inferno", etc.
-      domain = range(all_focused[!is.na(all_focused)]),
-      reverse = TRUE
-    )
-    
-    # Precomputing colors
-    colors <- ifelse(
-      is.na(all_focused),
-      "red",  # Color for NA values
-      pal(all_focused)  # Color for non-NA values
-    )
-    
-  } else {
-    # For categorical variables
-    if (length(unique_values) <= 12) {
-      pal <- colorFactor(palette = "Set3", domain = unique_values)
-    } else {
-      # For more than 12 unique values, use a qualitative palette
-      pal <- colorFactor(
-        palette = colorspace::qualitative_hcl(length(unique_values), "Dark2"),
-        domain = unique_values
-      )
-    }
-    
-    # Precomputing colors
-    colors <- ifelse(
-      is.na(data_spatial[[focus_var]]),
-      "red",  # Color for NA values
-      pal(data_spatial[[focus_var]])  # Color for non-NA values
-    )
-  }
-  
-  # Leaflet Map
-  map_optimized <- leaflet(data_spatial) %>%
-    addProviderTiles(providers$Esri.WorldImagery) %>%
-    addPolygons(data = pnm_borders, color = "lightblue", weight = 10) %>%
-    addCircleMarkers(
-      radius = 4,
-      stroke = FALSE,
-      fillOpacity = 1,
-      color = colors,  # Use the precomputed colors (red for NA)
-      popup = ~paste(
-        "Nom :", nom, "<br>",
-        "Type :", type_navire, "<br>",
-        "Sous-type :", type_navire_brut, "<br>",
-        "Taille :", taille, "m", "<br>",
-        "Classe de taille :", classe_taille, "<br>",
-        "Date :", date, "<br>",
-        "Heure :", time, "<br>",
-        "Région :", region, "<br>",
-        "Masse d'eau :", nom_masse_eau, "<br>",
-        "Habitat :", habitat, "<br>",
-        "Duree mouillage", duree_mouillage, "<br>",
-        "Probabilite impact :", probabilite_impact
-      )
-    )
-  
-  return(map_optimized)
-}
-
 # Variable per variable
 map_region <- category_map(donia_spatial, "region")
 map_region
@@ -290,11 +214,11 @@ donia_spatial %>%
 ## Joining datasets ----
 
 # Import of donia-resoblo connections reference manually completed
-donia_resoblo <- read.csv2("data/processed/donia_resoblo.csv") %>%
+donia_resoblo <- read.csv2(paths$processed_donia_resoblo) %>% 
   select(-type_navire)
 
 # Adding generalist columns of code and intitule depending on level 
-donia_resoblo<- donia_resoblo %>%
+donia_resoblo <- donia_resoblo %>%
   mutate(
     resoblo_intitule = case_when(
       !is.na(resoblo_intitule_n1) ~ resoblo_intitule_n1,
@@ -427,12 +351,13 @@ ggMarginal(g4, type = "histogram", size = 3)
 
 donia_spatial <- st_as_sf(donia, coords = c("lon_x", "lat_y"), crs = 4326)
 
-donia_folder <- file.path("data/processed/donia_folder/")
-if (!dir.exists(donia_folder)) {
-  dir.create(donia_folder)
-}
-
-st_write(donia_spatial, paste0(donia_folder, "/donia_talassa.shp"), driver = "ESRI Shapefile")
+# Exporting donia corrected data as gpkg format
+st_write(
+  donia_spatial, 
+  paste0(paths$processed_donia_points), 
+  driver = "GPKG", 
+  append = FALSE
+)
 
 map_taille <- category_map(donia_spatial, "taille", compressor = 1)
 map_taille

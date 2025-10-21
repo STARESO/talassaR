@@ -21,16 +21,18 @@
 ## Clean up and working directory ----
 rm(list = ls())
 
-## Library imports ----
+# Libraries ----
 
+# Tidyverse
+library("dbplyr")
+library("dplyr")
 
-# Libraries
+# Database connections
 library("RPostgres")
 library("odbc")
 library("DBI")
 
-library("dbplyr")
-library("dplyr")
+# Sourcing local scripts ----
 
 # Connection with RPostgres package ----
 
@@ -60,12 +62,12 @@ if (FALSE) {
 dbListTables(con)
 
 # Importing survols data
-survols_plaba <- readRDS("data/raw/us_med_pnmcca_observatoire_survols_plaba.rds")
-survols_usages <- readRDS("data/raw/us_med_pnmcca_observatoire_survols_usages.rds")
+survols_plaba <- readRDS(paths$survols_plaba)
+survols_usages <- readRDS(paths$survols_usages)
 
 # Writing tables to database
-dbWriteTable(con, "survols_usages", survols_usages, overwrite = TRUE)
-dbWriteTable(con, "survols_plaba", survols_plaba, overwrite = TRUE)
+dbWriteTable(con, "raw_survols_plaba", survols_plaba, overwrite = TRUE)
+dbWriteTable(con, "raw_survols_usages", survols_usages, overwrite = TRUE)
 
 dbDisconnect(con)
 

@@ -38,9 +38,11 @@ with(paths_env, {
   # Processed data ----
   
   # Survols
-  processed_survols_code_vs_nom <- "data/processed/survols/survols_usages_code_vs_nom.csv"
-  processed_survols_code_ref <- "data/processed/survols/code_ref.csv"
-  processed_survols_erreurs <- "data/processed/survols/carto_erreurs/"
+  processed_survols_code_vs_nom <- "data/processed/survols/survols_usages_code_vs_nom_a_completer.csv"
+  processed_survols_code_vs_nom_complet <- "data/processed/survols/survols_usages_code_vs_nom.csv"
+  processed_survols_erreurs <- "data/processed/survols/erreurs/"
+  processed_survols_averifier <- "data/processed/survols/a_verifier/"
+  processed_survols_complet <- "data/processed/survols/complet/"
   
   # Donia 
   processed_donia_resoblo <- "data/processed/donia/donia_resoblo.csv"

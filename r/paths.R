@@ -53,13 +53,11 @@ with(paths_env, {
   
 })
 
-
 # Create folders if missing ----
 
 # Extract all character paths from the environment
 all_paths <- as.list(paths_env)
 all_paths_vector <- unlist(all_paths)
-
 
 all_folders <- sapply(all_paths_vector, function(p) {
   if (grepl("/$", p)) {

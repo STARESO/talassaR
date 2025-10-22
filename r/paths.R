@@ -2,7 +2,7 @@
 #' title : "talassaR - paths"
 #' author : Aubin Woehrel
 #' creation date : 2025-10-20
-#' last modification : 2025-10-20
+#' last modification : 2025-10-22
 #' ---
 #'
 #' =============================================================================
@@ -40,11 +40,11 @@ with(paths_env, {
   # Survols
   processed_survols_code_vs_nom <- "data/processed/survols/survols_usages_code_vs_nom_a_completer.csv"
   processed_survols_code_vs_nom_complet <- "data/processed/survols/survols_usages_code_vs_nom.csv"
-  processed_survols_erreurs <- "data/processed/survols/erreurs/"
-  processed_survols_averifier <- "data/processed/survols/a_verifier/"
-  processed_survols_complet <- "data/processed/survols/complet/"
+  processed_survols_errors <- "data/processed/survols/spatial/errors/"
+  processed_survols_toverify <- "data/processed/survols/spatial/to_verify/"
+  processed_survols_corrected <- "data/processed/survols/spatial/corrected/"
   
-  # Donia 
+  # Donia  
   processed_donia_resoblo <- "data/processed/donia/donia_resoblo.csv"
   processed_donia_points <- "data/processed/donia/donia_points/donia_talassa.gpkg"
   processed_donia_hex <- "data/processed/donia/donia_hex/"

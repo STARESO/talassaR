@@ -38,8 +38,8 @@ with(paths_env, {
   # Processed data ----
 
   # Survols
-  processed_survols_code_vs_nom <- "data/processed/survols/survols_usages_code_vs_nom_a_completer.csv"
-  processed_survols_code_vs_nom_complet <- "data/processed/survols/survols_usages_code_vs_nom.csv"
+  processed_survols_codenom <- "data/processed/survols/survols_usages_code_vs_nom_a_completer.csv"
+  processed_survols_resoblo <- "data/processed/survols/survols_usages_code_vs_nom.csv"
   processed_survols_errors <- "data/processed/survols/spatial/errors/"
   processed_survols_toverify <- "data/processed/survols/spatial/to_verify/"
   processed_survols_corrected <- "data/processed/survols/spatial/corrected/"

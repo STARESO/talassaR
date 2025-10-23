@@ -6,12 +6,12 @@
 #' ---
 #'
 #' =============================================================================
-#' 
+#'
 #' talassaR : Paths
-#' 
-#' Description : 
+#'
+#' Description :
 #' Script to store all paths of project
-#' 
+#'
 #' =============================================================================
 
 # Creating new environment just for paths
@@ -19,32 +19,32 @@ paths_env <- new.env()
 
 # Populating paths in the path environment
 with(paths_env, {
-  
+
   # Raw data ----
-  
+
   # Survols
   raw_survols_plaba <- "data/raw/survols/us_med_pnmcca_observatoire_survols_plaba.rds"
   raw_survols_usages <- "data/raw/survols/us_med_pnmcca_observatoire_survols_usages.rds"
-  
+
   # Donia
   raw_donia <- "data/raw/donia/donia.csv"
-  
+
   # PNMCCA borders
   raw_pnmcca_borders <- "data/raw/pnm/N_ENP_PNM_S_000.shp"
-  
+
   # Carroyage
   raw_carroyage <- "data/raw/carroyage/zone_biocenoses/"
-  
+
   # Processed data ----
-  
+
   # Survols
   processed_survols_code_vs_nom <- "data/processed/survols/survols_usages_code_vs_nom_a_completer.csv"
   processed_survols_code_vs_nom_complet <- "data/processed/survols/survols_usages_code_vs_nom.csv"
   processed_survols_errors <- "data/processed/survols/spatial/errors/"
   processed_survols_toverify <- "data/processed/survols/spatial/to_verify/"
   processed_survols_corrected <- "data/processed/survols/spatial/corrected/"
-  
-  # Donia  
+
+  # Donia
   processed_donia_resoblo <- "data/processed/donia/donia_resoblo.csv"
   processed_donia_points <- "data/processed/donia/donia_points/donia_talassa.gpkg"
   processed_donia_hex <- "data/processed/donia/donia_hex/"
@@ -52,7 +52,7 @@ with(paths_env, {
 
   # Outputs ----
   output_donia_type_navire <- "data/processed/donia/donia_type_navire.csv"
-  
+
 })
 
 # Create folders if missing ----
@@ -64,10 +64,10 @@ all_paths_vector <- unlist(all_paths)
 all_folders <- sapply(all_paths_vector, function(p) {
   if (grepl("/$", p)) {
     # It's already a directory path
-    return(p)
+    p
   } else {
     # It's a file path; extract folder
-    return(dirname(p))
+    dirname(p)
   }
 }, USE.NAMES = FALSE)
 
@@ -76,7 +76,7 @@ all_folders <- unique(all_folders)
 # Create directories if needed
 sapply(all_folders, function(folder) {
   if (!dir.exists(folder)) {
-    dir.create(folder, recursive = TRUE) 
+    dir.create(folder, recursive = TRUE)
   }
 })
 

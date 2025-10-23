@@ -2,18 +2,18 @@
 #' title : "talassaR - donia carroyage"
 #' author : Aubin Woehrel
 #' creation date : 2025-10-21
-#' last modification : 2025-10-21
+#' last modification : 2025-10-23
 #' ---
 #'
 #' =============================================================================
-#' 
-#' talassaR : 
+#'
+#' talassaR :
 #' Donia carroyage
-#' 
-#' Description : 
-#' Aggregating data of Donia in the cells of different types of spatial grids 
+#'
+#' Description :
+#' Aggregating data of Donia in the cells of different types of spatial grids
 #' build for the TALASSA project.
-#' 
+#'
 #' =============================================================================
 
 
@@ -29,7 +29,7 @@ library("dplyr")
 library("tidyr")
 library("stringr")
 
-# Spatial 
+# Spatial
 library("sf")
 library("leaflet")
 library("rlang")
@@ -40,17 +40,16 @@ source("r/fct_aggregate_to_grid.R")
 
 # Importing data ----
 donia_talassa  <- st_read(paths$processed_donia_points)
-# plot(donia_talassa)
 
 # Carroyage data
-hex_demi  <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_hexagone_demimile.shp"))  
-hex_quart <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_hexagone_quartdemile.shp"))  
-hex_cinquieme <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_hexagone_cinquiemedemile.shp"))  
-hex_dizieme <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_hexagone_diziemedemile.shp"))  
-rect_demi <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_rectangle_demimile.shp")) 
-rect_quart <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_rectangle_quartdemile.shp"))  
-rect_cinquieme <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_rectangle_cinquiemedemile.shp"))  
-rect_carpediem <- st_read(paste0(paths$raw_carroyage, "grille_carpediem_1m_2019_pnmcca_cotier.shp"))  
+hex_demi  <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_hexagone_demimile.shp"))
+hex_quart <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_hexagone_quartdemile.shp"))
+hex_cinquieme <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_hexagone_cinquiemedemile.shp"))
+hex_dizieme <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_hexagone_diziemedemile.shp"))
+rect_demi <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_rectangle_demimile.shp"))
+rect_quart <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_rectangle_quartdemile.shp"))
+rect_cinquieme <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_rectangle_cinquiemedemile.shp"))
+rect_carpediem <- st_read(paste0(paths$raw_carroyage, "grille_carpediem_1m_2019_pnmcca_cotier.shp"))
 
 # Aggregation ----
 

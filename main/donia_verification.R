@@ -141,7 +141,6 @@ type_navire <- donia %>%
 # Spatialisation ----
 donia_spatial <- st_as_sf(donia, coords = c("lon_x", "lat_y"), crs = 4326)
 
-
 ## Variable distinction map ----
 # Variable per variable
 map_region <- category_map(donia_spatial, "region")

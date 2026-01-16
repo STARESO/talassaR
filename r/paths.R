@@ -19,7 +19,6 @@ paths_env <- new.env()
 
 # Populating paths in the path environment
 with(paths_env, {
-
   # Raw data ----
 
   # Survols
@@ -43,6 +42,7 @@ with(paths_env, {
   processed_survols_errors <- "data/processed/survols/spatial/errors/"
   processed_survols_toverify <- "data/processed/survols/spatial/to_verify/"
   processed_survols_corrected <- "data/processed/survols/spatial/corrected/"
+  processed_survols_corrected2 <- "data/processed/survols/spatial/corrected2/"
 
   # Donia
   processed_donia_resoblo <- "data/processed/donia/donia_resoblo.csv"
@@ -52,7 +52,6 @@ with(paths_env, {
 
   # Outputs ----
   output_donia_type_navire <- "data/processed/donia/donia_type_navire.csv"
-
 })
 
 # Create folders if missing ----

@@ -6,15 +6,15 @@
 #' ---
 #'
 #' =============================================================================
-#' 
-#' talassaR : 
+#'
+#' talassaR :
 #' Donia verification
-#' 
-#' Description : 
+#'
+#' Description :
 #' Small script to investigate and prepare data of Donia for the talassa project
-#' in the PNMCCA. Idea is to verify how data is structure and figure out how 
+#' in the PNMCCA. Idea is to verify how data is structure and figure out how
 #' to correct and preprocess the data for further integration in a grid
-#' 
+#'
 #' =============================================================================
 
 
@@ -37,7 +37,7 @@ library("ggbeeswarm")
 library("ggExtra")
 library("ggpubr")
 
-# Spatial 
+# Spatial
 library("sf")
 library("leaflet")
 library("rlang")
@@ -49,9 +49,9 @@ source("r/fct_category_map.R") # Custom data spatial map function
 ## Importing data ----
 
 donia <- read_delim(
-  paths$raw_donia, 
-  delim = ";", 
-  escape_double = FALSE, 
+  paths$raw_donia,
+  delim = ";",
+  escape_double = FALSE,
   trim_ws = TRUE
 )
 
@@ -76,7 +76,7 @@ donia <- donia %>%
   mutate(
     date = as.Date(date, format = "%d/%m/%Y"),
     classe_probabilite_impact = factor(
-      classe_probabilite_impact, 
+      classe_probabilite_impact,
       levels = c("tres_faible", "faible", "moyen", "fort", "tres_fort")
     ),
     taille = as.numeric(taille)
@@ -129,7 +129,7 @@ unique(donia$nom_masse_eau)
 ## Modifications post-investigation
 
 donia <- donia %>%
-  mutate(across(c(type_navire_brut, type_navire, nom_masse_eau, region), 
+  mutate(across(c(type_navire_brut, type_navire, nom_masse_eau, region),
                 str_to_lower))
 
 type_navire <- donia %>%
@@ -141,7 +141,6 @@ type_navire <- donia %>%
 # Spatialisation ----
 donia_spatial <- st_as_sf(donia, coords = c("lon_x", "lat_y"), crs = 4326)
 
-
 ## Variable distinction map ----
 # Variable per variable
 map_region <- category_map(donia_spatial, "region")
@@ -151,13 +150,13 @@ map_type <- category_map(donia_spatial, "type_navire")
 map_type
 
 map_sous_type <- category_map(donia_spatial, "type_navire_brut")
-map_sous_type  
+map_sous_type
 
 map_annee <- category_map(donia_spatial, "annee_mouillage")
 map_annee
 
 map_masse_eau <- category_map(donia_spatial, "code_masse_eau")
-map_masse_eau  
+map_masse_eau
 
 map_proba_impact <- category_map(donia_spatial, "probabilite_impact", compressor = 10)
 map_proba_impact
@@ -169,7 +168,7 @@ map_taille <- category_map(donia_spatial, "taille", compressor = 1)
 map_taille
 
 
-# Checking per type : 
+# Checking per type :
 
 # Cargo ships
 donia_spatial %>%
@@ -181,8 +180,8 @@ donia_spatial %>%
 # Passenger ships
 donia_spatial %>%
   filter(type_navire_brut %in% c(
-    "passenger ship", 
-    "passenger (cruise) ship", 
+    "passenger ship",
+    "passenger (cruise) ship",
     "passenger/ro-ro cargo ship"
   )) %>%
   category_map(., "type_navire_brut")
@@ -213,16 +212,16 @@ donia_spatial %>%
 ## Joining datasets ----
 
 # Import of donia-resoblo connections reference manually completed
-donia_resoblo <- read.csv2(paths$processed_donia_resoblo) %>% 
+donia_resoblo <- read.csv2(paths$processed_donia_resoblo) %>%
   select(-type_navire)
 
-# Adding generalist columns of code and intitule depending on level 
+# Adding generalist columns of code and intitule depending on level
 donia_resoblo <- donia_resoblo %>%
   mutate(
     resoblo_intitule = case_when(
       !is.na(resoblo_intitule_n1) ~ resoblo_intitule_n1,
       TRUE ~ resoblo_intitule_n2
-    ), 
+    ),
     resoblo_code = case_when(
       !is.na(resoblo_code_n1) ~ resoblo_code_n1,
       TRUE ~ resoblo_code_n2
@@ -248,24 +247,24 @@ t1 <- donia %>%
 t2 <- donia %>%
   filter(is.na(resoblo_code_n2)) %>%
   select(
-    resoblo_intitule_n2, 
-    type_navire_brut, 
-    type_navire) %>%
+    resoblo_intitule_n2,
+    type_navire_brut,
+    type_navire
+  ) %>%
   group_by_all() %>%
   summarize(n = n()) %>%
   arrange(desc(n))
-
 
 # Filter out all lines without resoblo correspondance from dataset
 donia <- donia %>%
   filter(!is.na(resoblo_intitule_n2))
 
-# Checking left over 
+# Checking left over
 t3 <- donia %>%
   select(
     type_navire,
     type_navire_brut,
-    resoblo_intitule_n2, 
+    resoblo_intitule_n2,
     resoblo_intitule_n1,
     resoblo_code_n2,
     resoblo_code_n1
@@ -283,7 +282,7 @@ t4 <- donia %>%
   filter(is.na(taille)) %>%
   select(
     type_navire_brut,
-    resoblo_intitule_n2, 
+    resoblo_intitule_n2,
     resoblo_intitule_n1,
   ) %>%
   group_by_all() %>%
@@ -292,7 +291,7 @@ t4 <- donia %>%
   ungroup()
 
 # And then computing completion rate :
-t4 <- t3 %>% 
+t4 <- t3 %>%
   filter(type_navire_brut %in% t4$type_navire_brut) %>%
   select(type_navire_brut, n) %>%
   left_join(., t4) %>%
@@ -301,7 +300,7 @@ t4 <- t3 %>%
       !is.na(resoblo_intitule_n1) ~ resoblo_intitule_n1,
       TRUE ~ resoblo_intitule_n2
     ),
-    taux_completion_taille = round(((n - n_na)*100)/n, 1)
+    taux_completion_taille = round(((n - n_na) * 100) / n, 1)
   ) %>%
   select(type_navire_brut, resoblo_intitule, n, n_na, taux_completion_taille) %>%
   rename(na_taille = n_na)
@@ -309,13 +308,13 @@ t4 <- t3 %>%
 
 # Graphical representations of size of boats and time anchored for transfo thinking process
 ggplot(donia, aes(x = taille, y = "")) +
-  geom_beeswarm(method = 'center') + 
-  theme_pubr() + 
+  geom_beeswarm(method = "center") +
+  theme_pubr() +
   labs(y = "")
 
 ggplot(donia, aes(x = duree_mouillage, y = "")) +
-  geom_beeswarm(method = 'center') + 
-  theme_classic() + 
+  geom_beeswarm(method = "center") +
+  theme_classic() +
   labs(y = "")
 
 g1 <- ggplot(donia, aes(x = taille, y = duree_mouillage)) +
@@ -351,9 +350,9 @@ donia_spatial <- st_as_sf(donia, coords = c("lon_x", "lat_y"), crs = 4326)
 
 # Exporting donia corrected data as gpkg format
 st_write(
-  donia_spatial, 
-  paste0(paths$processed_donia_points), 
-  driver = "GPKG", 
+  donia_spatial,
+  paste0(paths$processed_donia_points),
+  driver = "GPKG",
   append = FALSE
 )
 
@@ -361,4 +360,4 @@ map_taille <- category_map(donia_spatial, "taille", compressor = 1)
 map_taille
 
 map_region <- category_map(donia_spatial, "region")
-map_region 
+map_region

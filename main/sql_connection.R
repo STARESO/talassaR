@@ -6,12 +6,12 @@
 #' ---
 #'
 #' =============================================================================
-#' 
-#' talassaR : 
+#'
+#' talassaR :
 #' postgresql connection
-#' 
-#' Description : 
-#' Connects to postgreSQL database on local machine. Enables the creation of 
+#'
+#' Description :
+#' Connects to postgreSQL database on local machine. Enables the creation of
 #' datasets in the postgreDB using R, and updates them if needed.
 #' =============================================================================
 
@@ -55,7 +55,7 @@ if (FALSE) {
     pwd    = Sys.getenv("DB_PASSWORD"),
     host   = "localhost",
     port   = 5432
-  ) 
+  )
 }
 
 # Testing the different function of the package
@@ -70,4 +70,3 @@ dbWriteTable(con, "raw_survols_plaba", survols_plaba, overwrite = TRUE)
 dbWriteTable(con, "raw_survols_usages", survols_usages, overwrite = TRUE)
 
 dbDisconnect(con)
-

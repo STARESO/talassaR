@@ -116,7 +116,7 @@ type_navire <- donia %>%
 
 write.csv2(type_navire, paths$output_donia_type_navire)
 
-type_na_vs_value <-   type_navire %>%
+type_na_vs_value <- type_navire %>%
   mutate(type_navire_brut = case_when(
     is.na(type_navire_brut) ~ "NA",
     TRUE ~ "type_existe"
@@ -129,8 +129,10 @@ unique(donia$nom_masse_eau)
 ## Modifications post-investigation
 
 donia <- donia %>%
-  mutate(across(c(type_navire_brut, type_navire, nom_masse_eau, region),
-                str_to_lower))
+  mutate(across(
+    c(type_navire_brut, type_navire, nom_masse_eau, region),
+    str_to_lower
+  ))
 
 type_navire <- donia %>%
   select(type_navire, type_navire_brut) %>%

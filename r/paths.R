@@ -28,6 +28,11 @@ with(paths_env, {
   # Donia
   raw_donia <- "data/raw/donia/donia.csv"
 
+  # Peche de loisir
+  raw_peche_shp <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.shp"
+  raw_peche_gpkg <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.gpkg"
+  raw_peche_quentin <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025_traitement_Quentin.shp" # Donnees prétraitées par Quentin en 2025
+
   # PNMCCA borders
   raw_pnmcca_borders <- "data/raw/pnm/N_ENP_PNM_S_000.shp"
 

@@ -32,6 +32,7 @@ with(paths_env, {
   raw_peche_shp <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.shp"
   raw_peche_gpkg <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.gpkg"
   raw_peche_quentin <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025_traitement_Quentin.shp" # Donnees prétraitées par Quentin en 2025
+  raw_peche_clean <- "data/raw/peche_recreative/us_med_pnmcca_observatoire_peche_loisir_ofb_pt_2020_2024.gpkg"
 
   # PNMCCA borders
   raw_pnmcca_borders <- "data/raw/pnm/N_ENP_PNM_S_000.shp"
@@ -54,6 +55,9 @@ with(paths_env, {
   processed_donia_points <- "data/processed/donia/donia_points/donia_talassa.gpkg"
   processed_donia_hex <- "data/processed/donia/donia_hex/"
   processed_donia_rect <- "data/processed/donia/donia_rect/"
+
+  # Peche
+  processed_peche_hex <- "data/processed/peche/peche_hex/"
 
   # Outputs ----
   output_donia_type_navire <- "data/processed/donia/donia_type_navire.csv"

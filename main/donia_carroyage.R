@@ -58,7 +58,7 @@ rect_carpediem <- st_read(paste0(paths$raw_carroyage, "grille_carpediem_1m_2019_
 hex_demi_lnduree <- aggregate_to_grid(
   grid_layer = hex_demi,
   transfo = "ln_mouillage",
-  id_field = "id",
+  id_field = "id_hex",
   output = paste0(paths$processed_donia_hex, "hex_demi_donia_lnduree.gpkg"),
   layer_name = "hex_demi_donia_lnduree",
   overwrite = TRUE
@@ -67,7 +67,7 @@ hex_demi_lnduree <- aggregate_to_grid(
 hex_quart_lnduree <- aggregate_to_grid(
   grid_layer = hex_quart,
   transfo = "ln_mouillage",
-  id_field = "id",
+  id_field = "id_hex",
   output = paste0(paths$processed_donia_hex, "hex_quart_donia_lnduree.gpkg"),
   layer_name = "hex_quart_donia_lnduree",
   overwrite = TRUE
@@ -76,7 +76,7 @@ hex_quart_lnduree <- aggregate_to_grid(
 hex_cinquieme_lnduree <- aggregate_to_grid(
   grid_layer = hex_cinquieme,
   transfo = "ln_mouillage",
-  id_field = "id",
+  id_field = "id_hex",
   output = paste0(paths$processed_donia_hex, "hex_cinquieme_donia_lnduree.gpkg"),
   layer_name = "hex_cinquieme_donia_lnduree",
   overwrite = TRUE
@@ -84,7 +84,7 @@ hex_cinquieme_lnduree <- aggregate_to_grid(
 
 hex_dizieme_lnduree <- aggregate_to_grid(
   grid_layer = hex_dizieme,
-  id_field   = "id",
+  id_field   = "id_hex",
   output     = paste0(paths$processed_donia_hex, "hex_dizieme_donia_lnduree.gpkg"),
   layer_name = "hex_dizieme_donia_lnduree",
   overwrite  = TRUE
@@ -94,7 +94,7 @@ hex_dizieme_lnduree <- aggregate_to_grid(
 hex_demi_lnall <- aggregate_to_grid(
   grid_layer = hex_demi,
   transfo = "ln_all",
-  id_field = "id",
+  id_field = "id_hex",
   output = paste0(paths$processed_donia_hex, "hex_demi_donia_lnall.gpkg"),
   layer_name = "hex_demi_donia_lnall",
   overwrite = TRUE
@@ -103,7 +103,7 @@ hex_demi_lnall <- aggregate_to_grid(
 hex_quart_lnall <- aggregate_to_grid(
   grid_layer = hex_quart,
   transfo = "ln_all",
-  id_field = "id",
+  id_field = "id_hex",
   output = paste0(paths$processed_donia_hex, "hex_quart_donia_lnall.gpkg"),
   layer_name = "hex_quart_donia_lnall",
   overwrite = TRUE
@@ -112,7 +112,7 @@ hex_quart_lnall <- aggregate_to_grid(
 hex_cinquieme_lnall <- aggregate_to_grid(
   grid_layer = hex_cinquieme,
   transfo = "ln_all",
-  id_field = "id",
+  id_field = "id_hex",
   output = paste0(paths$processed_donia_hex, "hex_cinquieme_donia_lnall.gpkg"),
   layer_name = "hex_cinquieme_donia_lnall",
   overwrite = TRUE
@@ -121,7 +121,7 @@ hex_cinquieme_lnall <- aggregate_to_grid(
 hex_dizieme_lnall <- aggregate_to_grid(
   grid_layer = hex_dizieme,
   transfo = "ln_all",
-  id_field = "id",
+  id_field = "id_hex",
   output = paste0(paths$processed_donia_hex, "hex_dizieme_donia_lnall.gpkg"),
   layer_name = "hex_dizieme_donia_lnall",
   overwrite = TRUE

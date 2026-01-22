@@ -8,13 +8,15 @@
 #' =============================================================================
 #'
 #' talassaR :
-#' Function aggregate to grid
+#' Function aggregate to grid donia
 #'
 #' Description :
 #' Function to aggregate donia point data to grid
 #'
 #' =============================================================================
 
+library("dplyr")
+library("sf")
 
 # Aggregating function ----
 aggregate_to_grid <- function(
@@ -36,7 +38,7 @@ aggregate_to_grid <- function(
   pts_j <- pts %>%
     st_join(
       grid_layer %>%
-        select(all_of(id_field)),
+        dplyr::select(all_of(id_field)),
       join = st_intersects, left = TRUE
     )
 

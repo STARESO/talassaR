@@ -43,7 +43,7 @@ source("r/fct_category_map.R") # Custom data spatial map function
 # Peche de loisir imports (different versions of raw data)
 peche_loisir <- sf::st_read(paths$raw_peche_shp) %>% sf::st_transform(crs = 4326)
 peche_loisir_gpkg <- sf::st_read(paths$raw_peche_gpkg) %>% sf::st_transform(crs = 4326)
-peche_loisir_Quentin <- sf::st_read(paths$raw_peche_quentin) %>% sf::st_transform(crs = 4326)
+peche_loisir_quentin <- sf::st_read(paths$raw_peche_quentin) %>% sf::st_transform(crs = 4326)
 
 # The dataset cleaned by hand from peche loisir for the Talassa project
 peche_loisir_clean <- sf::st_read(paths$raw_peche_clean) %>% sf::st_transform(crs = 4326)
@@ -60,10 +60,10 @@ pnm_borders <- sf::st_read(paths$raw_pnmcca_borders) %>%
 str(peche_loisir)
 str(peche_loisir_gpkg)
 str(peche_loisir_clean)
-str(peche_loisir_Quentin) # Not exactly all the same variable names
+str(peche_loisir_quentin) # Not exactly all the same variable names
 
-# Few column names changes for Quentin's dataset
-peche_loisir_Quentin <- peche_loisir_Quentin %>%
+# Few column names changes for quentin's dataset
+peche_loisir_quentin <- peche_loisir_quentin %>%
   rename_with(stringr::str_to_lower) %>%
   rename_with(function(x) {
     str_replace_all(x, "\\.", "_")
@@ -83,7 +83,7 @@ map_peche <- function(data_peche, type_peche = "all") {
     addProviderTiles(providers$Esri.WorldImagery) %>%
     addPolygons(data = pnm_borders, color = "lightblue", weight = 10)
 
-  if ("bd" %in% names(data_peche)) { # Quentin treated data
+  if ("bd" %in% names(data_peche)) { # quentin treated data
     map_peche_selected <- map_peche_selected %>%
       addCircleMarkers(
         radius = 4,
@@ -115,7 +115,7 @@ map_peche <- function(data_peche, type_peche = "all") {
 # All data
 map_peche(peche_loisir)
 map_peche(peche_loisir_gpkg)
-map_peche(peche_loisir_Quentin)
+map_peche(peche_loisir_quentin)
 map_peche(peche_loisir_clean)
 
 # Map of og fishing dataset by type
@@ -124,11 +124,11 @@ map_peche(data_peche = peche_loisir, type_peche = "pe")
 map_peche(data_peche = peche_loisir, type_peche = "pdb")
 map_peche(data_peche = peche_loisir, type_peche = "csm")
 
-# Map of corrected dataset (Quentin 2025) per type
-map_peche(data_peche = peche_loisir_Quentin, type_peche = "po")
-map_peche(data_peche = peche_loisir_Quentin, type_peche = "pe")
-map_peche(data_peche = peche_loisir_Quentin, type_peche = "pdb")
-map_peche(data_peche = peche_loisir_Quentin, type_peche = "csm")
+# Map of corrected dataset (quentin 2025) per type
+map_peche(data_peche = peche_loisir_quentin, type_peche = "po")
+map_peche(data_peche = peche_loisir_quentin, type_peche = "pe")
+map_peche(data_peche = peche_loisir_quentin, type_peche = "pdb")
+map_peche(data_peche = peche_loisir_quentin, type_peche = "csm")
 
 # General variable investigation ----
 View(peche_loisir)
@@ -137,7 +137,7 @@ sort(unique(peche_loisir$id_obs))
 unique(peche_loisir$mod_pech) # All levels are ok
 
 # Testing unicity of identifiers : which are specific to each survey ?
-test <- peche_loisir_Quentin %>%
+test <- peche_loisir_quentin %>%
   as.data.frame() %>%
   select(fiche_n, id_sortie, id_obs, bd) %>%
   distinct() %>%

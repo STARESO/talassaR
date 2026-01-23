@@ -56,6 +56,9 @@ pnm_borders <- sf::st_read(paths$raw_pnmcca_borders) %>%
   sf::st_transform(crs = 4326) %>%
   dplyr::filter(NOM_SITE == "cap Corse et Agriate")
 
+# Resoblo reference
+peche_resoblo <- read.csv2(paths$raw_peche_resoblo)
+
 # Fast structure check
 str(peche_loisir)
 str(peche_loisir_gpkg)
@@ -259,7 +262,7 @@ grid_out <- hex_cinquieme %>%
 
 st_write(
   obj = grid_out,
-  dsn = paste0(paths$processed_peche_hex, "us_med_pnmcca_observatoire_pecheloisir_hexcinquieme_ofb_pol.gpkg"
+  dsn = paste0(paths$processed_peche_hex, "us_med_pnmcca_observatoire_pecheloisir_hexcinquieme_ofb_pol.gpkg"),
   layer = "hex_cinquieme_peche_all",
   delete_dsn = TRUE
 )

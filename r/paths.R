@@ -33,6 +33,7 @@ with(paths_env, {
   raw_peche_gpkg <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.gpkg"
   raw_peche_quentin <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025_traitement_Quentin.shp" # Donnees prétraitées par Quentin en 2025
   raw_peche_clean <- "data/raw/peche_recreative/us_med_pnmcca_observatoire_peche_loisir_ofb_pt_2020_2024.gpkg"
+  raw_peche_resoblo <- "data/raw/peche_recreative/peche_resoblo.csv"
 
   # PNMCCA borders
   raw_pnmcca_borders <- "data/raw/pnm/N_ENP_PNM_S_000.shp"

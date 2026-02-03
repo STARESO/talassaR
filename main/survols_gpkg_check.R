@@ -49,7 +49,6 @@ survols_all <- file_names %>%
   map(st_read, quiet = TRUE) %>%
   bind_rows()
 
-
 # General check ----
 skim(survols_all)
 

@@ -168,9 +168,15 @@ count_pdb <- peche_loisir %>%
 # View(count_pdb)
 
 # Preparing for grid aggregation ----
+
+# Getting distincs by id_obs <=> removing catch observations
 peche_loisir_simpler <- peche_loisir_clean %>%
   select(id_obs, id_sortie, date, mod_pech, prof_m, nb_pecheur, temps_pech) %>%
   distinct()
+
+# Adding resoblo codes by joining peche_resoblo.csv info
+peche_loisir_simpler <- peche_loisir_simpler %>%
+  left_join(., peche_resoblo, by = join_by(mod_pech))
 
 View(peche_loisir_simpler)
 
@@ -212,7 +218,9 @@ join_map <- pts_j %>%
       "ID sortie :", id_obs, "<br>",
       "Id hex :", id_hex, "<br>",
       "Date :", date, "<br>",
-      "Type de pêche :", mod_pech, "<br>"
+      "Type de pêche :", mod_pech, "<br>",
+      "Resoblo code :", resoblo_code_n3, "<br>",
+      "Resoblo intitulé :", resoblo_intitule_n3, "<br>"
     )
   )
 # join_map
@@ -231,7 +239,7 @@ dim(pts_j)[1] - pts_lost[1] # 195 usable
 agg_tot <- pts_j %>%
   st_drop_geometry() %>%
   filter(!is.na(id_hex)) %>%
-  group_by(id_hex) %>% # TODO : implement resoblo code instead of mod_pech
+  group_by(id_hex) %>%
   summarise(
     peche_loisir_total = sum(nb_pecheur, na.rm = TRUE)
   )
@@ -240,18 +248,25 @@ agg_tot <- pts_j %>%
 agg_cat <- pts_j %>%
   st_drop_geometry() %>%
   filter(!is.na(id_hex)) %>%
-  group_by(id_hex, mod_pech) %>% # TODO : implement resoblo code instead of mod_pech
+  group_by(id_hex, mod_pech, mod_pech_intitule, resoblo_intitule_n3, resoblo_code_n3) %>%
   summarise(
     nb_pecheur = sum(nb_pecheur, na.rm = TRUE)
   ) %>%
+  ungroup()
+
+# Format Talassa avec entêtes Resoblo snake-type
+agg_cat_wider <- agg_cat %>%
+  select(id_hex, resoblo_code_n3, nb_pecheur) %>%
+  mutate(resoblo_code_n3 = str_to_snake(resoblo_code_n3)) %>% # converting to better talassa format for model
   pivot_wider(
-    names_from = mod_pech,
+    names_from = resoblo_code_n3,
     values_from = nb_pecheur,
     values_fill = 0
   ) %>%
   ungroup()
 
-agg <- agg_cat %>%
+# Export données format Talassa
+agg <- agg_cat_wider %>%
   left_join(., agg_tot, by = "id_hex") %>%
   relocate(peche_loisir_total, .after = all_of("id_hex"))
 
@@ -262,6 +277,23 @@ grid_out <- hex_cinquieme %>%
 
 st_write(
   obj = grid_out,
+  dsn = paste0(paths$processed_peche_hex, "us_med_pnmcca_talassa_pecheloisir_hexcinquieme_ofb_pol.gpkg"),
+  layer = "hex_cinquieme_peche_all",
+  delete_dsn = TRUE
+)
+
+# Export données format observatoire classique (entête plus compréhensible)
+agg2 <- agg_cat %>%
+  left_join(., agg_tot, by = "id_hex") %>%
+  relocate(peche_loisir_total, .after = all_of("id_hex"))
+
+grid_out2 <- hex_cinquieme %>%
+  left_join(., agg2, by = "id_hex") %>%
+  mutate(across(where(is.numeric), ~ replace_na(., 0))) %>%
+  relocate(left, top, right, bottom, .after = everything())
+
+st_write(
+  obj = grid_out2,
   dsn = paste0(paths$processed_peche_hex, "us_med_pnmcca_observatoire_pecheloisir_hexcinquieme_ofb_pol.gpkg"),
   layer = "hex_cinquieme_peche_all",
   delete_dsn = TRUE

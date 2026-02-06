@@ -1,29 +1,28 @@
 #' ---
-#' title : "talassaR - donia verification"
+#' title : "talassaR - correction_donia"
 #' author : Aubin Woehrel
 #' creation date : 2025-09-15
-#' last modification : 2025-10-20
 #' ---
 #'
 #' =============================================================================
 #'
-#' talassaR :
-#' Donia verification
+#' talassaR : Correction des données Donia
 #'
 #' Description :
-#' Small script to investigate and prepare data of Donia for the talassa project
-#' in the PNMCCA. Idea is to verify how data is structure and figure out how
-#' to correct and preprocess the data for further integration in a grid
+#' Script permettant de vérifier et corriger les données de Donia pour
+#' une utilisation finale dans le projet TALASSA. Etapes :
+#' 1) Vérification des données
+#' 2) Jointure codes RESOBLO
 #'
 #' =============================================================================
 
 
-# Initialization ----
+# Initialisation ----
 
-## Clean up and working directory ----
+## Nettoyage ----
 rm(list = ls())
 
-## Library imports ----
+## Import des librairies ----
 
 # Data import and tidying
 library("readr")
@@ -353,7 +352,7 @@ donia_spatial <- st_as_sf(donia, coords = c("lon_x", "lat_y"), crs = 4326)
 # Exporting donia corrected data as gpkg format
 st_write(
   donia_spatial,
-  paste0(paths$processed_donia_points),
+  paste0(paths$processed_obs_donia),
   driver = "GPKG",
   append = FALSE
 )

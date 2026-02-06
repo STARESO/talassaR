@@ -15,10 +15,10 @@
 #' Richir in another contract with the PNMCCA
 #'
 #' =============================================================================
-#'
-#' # Initialization ----
-#'
-#' ## Clean up and working directory ----
+
+
+# Initialization ----
+## Clean up and working directory ----
 rm(list = ls())
 
 ## Library imports ----

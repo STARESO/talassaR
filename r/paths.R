@@ -49,7 +49,7 @@ with(paths_env, {
   processed_survols_errors <- "data/processed/survols/spatial/errors/"
   processed_survols_toverify <- "data/processed/survols/spatial/to_verify/"
   processed_survols_corrected <- "data/processed/survols/spatial/corrected/"
-  processed_survols_corrected2 <- "data/processed/survols/spatial/corrected2/"
+  processed_survols_hex <- "data/processed/survols/spatial/spatial_hex/"
 
   # Donia
   processed_donia_resoblo <- "data/processed/donia/donia_resoblo.csv"

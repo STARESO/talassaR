@@ -68,25 +68,25 @@ with(paths_env, {
   processed_donia_rect <- "data/processed/dev/donia/donia_rect/"
 
   # Données corrigées format observatoire
-  processed_obs_survolusage <- "data/processed/observatoire/us_med_pnmcca_observatoire_survols_usages_ofb_pts_2154.gpkg"
-  processed_obs_survolplaba <- "data/processed/observatoire/us_med_pnmcca_observatoire_survols_plaba_ofb_pts_2154.gpkg"
-  processed_obs_peche <- "data/processed/observatoire/us_med_pnmcca_observatoire_peche_recreative_ofb_pts_2154.gpkg"
-  processed_obs_donia <- "data/processed/observatoire/us_med_pnmcca_observatoire_donia_ofb_pts_2154.gpkg"
-  processed_obs_plongee <- "data/processed/observatoire/us_med_pnmcca_observatoire_plongee_ofb_pts_2154.gpkg"
+  processed_obs_survolusage <- "data/processed/observatoire/us_med_pnmcca_observatoire_survols_usages_ofb_pts_4326.gpkg"
+  processed_obs_survolplaba <- "data/processed/observatoire/us_med_pnmcca_observatoire_survols_plaba_ofb_pts_4326.gpkg"
+  processed_obs_peche <- "data/processed/observatoire/us_med_pnmcca_observatoire_peche_recreative_ofb_pts_4326.gpkg"
+  processed_obs_donia <- "data/processed/observatoire/us_med_pnmcca_observatoire_donia_ofb_pts_4326.gpkg"
+  processed_obs_plongee <- "data/processed/observatoire/us_med_pnmcca_observatoire_plongee_sites_ofb_pts_4326.gpkg"
   processed_obs_habitats <- "data/processed/observatoire/eco_med_pnmcca_observatoire_habitats_andromede_pol_4326.gpkg"
 
   # Données format Talassa ponctuelles
-  processed_tal_pts_survolusage <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_usages_ofb_pts_2154.gpkg"
-  processed_tal_pts_survolplaba <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_plaba_ofb_pts_2154.gpkg"
-  processed_tal_pts_peche <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_peche_ofb_pts_2154.gpkg"
-  processed_tal_pts_donia <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_donia_ofb_pts_2154.gpkg"
-  processed_tal_pts_plongee <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_plongee_ofb_pts_2154.gpkg"
+  processed_tal_pts_survolusage <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_usages_ofb_pts_4326.gpkg"
+  processed_tal_pts_survolplaba <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_plaba_ofb_pts_4326.gpkg"
+  processed_tal_pts_peche <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_peche_ofb_pts_4326.gpkg"
+  processed_tal_pts_donia <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_donia_ofb_pts_4326.gpkg"
+  processed_tal_pts_plongee <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_plongee_sites_ofb_pts_4326.gpkg"
   processed_tal_pts_habitats <- "data/processed/talassa_pts/eco_med_pnmcca_talassa_survols_habitats_ofb_pts_4326.gpkg"
 
   # Données format Talassa maillées (hexagones)
-  processed_tal_hex_activites <- "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_ofb_pol_2154.gpkg"
-  processed_tal_hex_habitats <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_ofb_pol_2154.gpkg"
-  processed_tal_hex_carroyage <- "data/processed/talassa_hex/us_med_pnmcca_talassa_carroyage_ofb_pol_2154.gpkg"
+  processed_tal_hex_activites <- "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_ofb_pol_4326.gpkg"
+  processed_tal_hex_habitats <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_ofb_pol_4326.gpkg"
+  processed_tal_hex_carroyage <- "data/processed/talassa_hex/us_med_pnmcca_talassa_carroyage_ofb_pol_4326.gpkg"
 
   # Outputs ----
   # NA for now but need Donia

@@ -57,7 +57,7 @@ pnm_borders <- sf::st_read(paths$raw_pnmcca_borders) %>%
   dplyr::filter(NOM_SITE == "cap Corse et Agriate")
 
 # Resoblo reference
-peche_resoblo <- read.csv2(paths$raw_peche_resoblo)
+peche_resoblo <- read.csv2(paths$raw_codes_peche)
 
 # Fast structure check
 str(peche_loisir)

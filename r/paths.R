@@ -34,7 +34,6 @@ with(paths_env, {
   raw_peche_gpkg <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.gpkg"
   raw_peche_quentin <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025_traitement_Quentin.shp" # Donnees prétraitées par Quentin en 2025
   raw_peche_clean <- "data/raw/peche_recreative/us_med_pnmcca_observatoire_peche_loisir_ofb_pt_2020_2024.gpkg"
-  raw_peche_resoblo <- "data/raw/peche_recreative/peche_resoblo.csv"
 
   # Plongee
   raw_plongee_2023 <- "data/raw/plongee/Plongée_2023.shp"
@@ -43,7 +42,6 @@ with(paths_env, {
   ### Habitats et carroyage ----
   # Habitats
   raw_habitats_andromede <- "data/raw/habitats/biocenoses_andromede_PNMCCA_2025_fixed_geometry_by_stareso.shp"
-  raw_habitats_codes <- "data/raw/habitats/corredpondande_codes_habitats.xlsx"
 
   # PNMCCA borders
   raw_pnmcca_borders <- "data/raw/pnm/N_ENP_PNM_S_000.shp"
@@ -51,6 +49,12 @@ with(paths_env, {
   # Carroyage
   raw_carroyage <- "data/raw/carroyage/zone_biocenoses/"
   raw_carroyage_final <- "data/raw/carroyage/zone_biocenoses/grille_talassa_2025_cotier_hexagone_cinquiemedemile.shp"
+
+  ### Référentiels codes et intitulés----
+  raw_codes_talassa <- "data/raw/codes/referentiel_codes_talassa_2026.xlsx"
+  raw_codes_peche <- "data/raw/codes/referentiel_codes_peche_resoblo.csv"
+  raw_codes_donia <- "data/raw/codes/referentiel_codes_donia_resoblo.csv"
+  raw_codes_habitats <- "data/raw/codes/referentiel_codes_habitats.xlsx"
 
 
   ## Processed data ----
@@ -78,10 +82,10 @@ with(paths_env, {
   # Données format Talassa ponctuelles
   processed_tal_pts_survolusage <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_usages_ofb_pts_4326.gpkg"
   processed_tal_pts_survolplaba <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_plaba_ofb_pts_4326.gpkg"
-  processed_tal_pts_peche <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_peche_ofb_pts_4326.gpkg"
-  processed_tal_pts_donia <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_donia_ofb_pts_4326.gpkg"
-  processed_tal_pts_plongee <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_plongee_sites_ofb_pts_4326.gpkg"
-  processed_tal_pts_habitats <- "data/processed/talassa_pts/eco_med_pnmcca_talassa_survols_habitats_ofb_pts_4326.gpkg"
+  processed_tal_pts_peche <- "data/processed/talassa_pts/us_med_pnmcca_talassa_peche_ofb_pts_4326.gpkg"
+  processed_tal_pts_donia <- "data/processed/talassa_pts/us_med_pnmcca_talassa_donia_ofb_pts_4326.gpkg"
+  processed_tal_pts_plongee <- "data/processed/talassa_pts/us_med_pnmcca_talassa_plongee_sites_ofb_pts_4326.gpkg"
+  processed_tal_pts_habitats <- "data/processed/talassa_pts/eco_med_pnmcca_talassa_habitats_ofb_pts_4326.gpkg"
 
   # Données format Talassa maillées (hexagones)
   processed_tal_hex_activites <- "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_ofb_pol_4326.gpkg"

@@ -17,10 +17,11 @@
 # Creating new environment just for paths
 paths_env <- new.env()
 
-# Populating paths in the path environment
+# Populating paths in the path environment ----
 with(paths_env, {
-  # Raw data ----
+  ## Raw data ----
 
+  ### Activités ----
   # Survols
   raw_survols_plaba <- "data/raw/survols/us_med_pnmcca_observatoire_survols_plaba.rds"
   raw_survols_usages <- "data/raw/survols/us_med_pnmcca_observatoire_survols_usages.rds"
@@ -28,40 +29,67 @@ with(paths_env, {
   # Donia
   raw_donia <- "data/raw/donia/donia.csv"
 
-  # Peche de loisir
+  # Peche récréative
   raw_peche_shp <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.shp"
   raw_peche_gpkg <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.gpkg"
   raw_peche_quentin <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025_traitement_Quentin.shp" # Donnees prétraitées par Quentin en 2025
   raw_peche_clean <- "data/raw/peche_recreative/us_med_pnmcca_observatoire_peche_loisir_ofb_pt_2020_2024.gpkg"
   raw_peche_resoblo <- "data/raw/peche_recreative/peche_resoblo.csv"
 
+  # Plongee
+  raw_plongee_2023 <- "data/raw/plongee/Plongée_2023.shp"
+  raw_plongee_2025 <- "data/raw/plongee/plongée_SIG_2025.csv"
+
+  ### Habitats et carroyage ----
+  # Habitats
+  raw_habitats_andromede <- "data/raw/habitats/biocenoses_andromede_PNMCCA_2025_fixed_geometry_by_stareso.shp"
+  raw_habitats_codes <- "data/raw/habitats/corredpondande_codes_habitats.xlsx"
+
   # PNMCCA borders
   raw_pnmcca_borders <- "data/raw/pnm/N_ENP_PNM_S_000.shp"
 
   # Carroyage
   raw_carroyage <- "data/raw/carroyage/zone_biocenoses/"
+  raw_carroyage_final <- "data/raw/carroyage/zone_biocenoses/grille_talassa_2025_cotier_hexagone_cinquiemedemile.shp"
 
-  # Processed data ----
 
-  # Survols
-  processed_survols_codenom <- "data/processed/survols/survols_usages_code_vs_nom_a_completer.csv"
-  processed_survols_resoblo <- "data/processed/survols/survols_usages_code_vs_nom.csv"
-  processed_survols_errors <- "data/processed/survols/spatial/errors/"
-  processed_survols_toverify <- "data/processed/survols/spatial/to_verify/"
-  processed_survols_corrected <- "data/processed/survols/spatial/corrected/"
-  processed_survols_hex <- "data/processed/survols/spatial/spatial_hex/"
+  ## Processed data ----
 
-  # Donia
-  processed_donia_resoblo <- "data/processed/donia/donia_resoblo.csv"
-  processed_donia_points <- "data/processed/donia/donia_points/donia_talassa.gpkg"
-  processed_donia_hex <- "data/processed/donia/donia_hex/"
-  processed_donia_rect <- "data/processed/donia/donia_rect/"
+  # Données developpement
+  processed_survols_codenom <- "data/processed/dev/survols/survols_usages_code_vs_nom_a_completer.csv"
+  processed_survols_resoblo <- "data/processed/dev/survols/survols_usages_code_vs_nom.csv"
+  processed_survols_errors <- "data/processed/dev/survols/spatial/errors/"
+  processed_survols_toverify <- "data/processed/dev/survols/spatial/to_verify/"
+  processed_survols_corrected <- "data/processed/dev/survols/spatial/corrected/"
+  processed_survols_hex <- "data/processed/dev/survols/spatial/spatial_hex/"
+  processed_donia_resoblo <- "data/processed/dev/donia/donia_resoblo.csv"
+  processed_donia_type_navire <- "data/processed/dev/donia/donia_type_navire.csv"
+  processed_donia_hex <- "data/processed/dev/donia/donia_hex/"
+  processed_donia_rect <- "data/processed/dev/donia/donia_rect/"
 
-  # Peche
-  processed_peche_hex <- "data/processed/peche/peche_hex/"
+  # Données corrigées format observatoire
+  processed_obs_survolusage <- "data/processed/observatoire/us_med_pnmcca_observatoire_survols_usages_ofb_pts_2154.gpkg"
+  processed_obs_survolplaba <- "data/processed/observatoire/us_med_pnmcca_observatoire_survols_plaba_ofb_pts_2154.gpkg"
+  processed_obs_peche <- "data/processed/observatoire/us_med_pnmcca_observatoire_peche_recreative_ofb_pts_2154.gpkg"
+  processed_obs_donia <- "data/processed/observatoire/us_med_pnmcca_observatoire_donia_ofb_pts_2154.gpkg"
+  processed_obs_plongee <- "data/processed/observatoire/us_med_pnmcca_observatoire_plongee_ofb_pts_2154.gpkg"
+  processed_obs_habitats <- "data/processed/observatoire/eco_med_pnmcca_observatoire_habitats_andromede_pol_4326.gpkg"
+
+  # Données format Talassa ponctuelles
+  processed_tal_pts_survolusage <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_usages_ofb_pts_2154.gpkg"
+  processed_tal_pts_survolplaba <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_plaba_ofb_pts_2154.gpkg"
+  processed_tal_pts_peche <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_peche_ofb_pts_2154.gpkg"
+  processed_tal_pts_donia <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_donia_ofb_pts_2154.gpkg"
+  processed_tal_pts_plongee <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_plongee_ofb_pts_2154.gpkg"
+  processed_tal_pts_habitats <- "data/processed/talassa_pts/eco_med_pnmcca_talassa_survols_habitats_ofb_pts_4326.gpkg"
+
+  # Données format Talassa maillées (hexagones)
+  processed_tal_hex_activites <- "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_ofb_pol_2154.gpkg"
+  processed_tal_hex_habitats <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_ofb_pol_2154.gpkg"
+  processed_tal_hex_carroyage <- "data/processed/talassa_hex/us_med_pnmcca_talassa_carroyage_ofb_pol_2154.gpkg"
 
   # Outputs ----
-  output_donia_type_navire <- "data/processed/donia/donia_type_navire.csv"
+  # NA for now but need Donia
 })
 
 # Create folders if missing ----

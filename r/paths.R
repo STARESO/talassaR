@@ -28,6 +28,13 @@ with(paths_env, {
   # Donia
   raw_donia <- "data/raw/donia/donia.csv"
 
+  # Peche de loisir
+  raw_peche_shp <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.shp"
+  raw_peche_gpkg <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.gpkg"
+  raw_peche_quentin <- "data/raw/peche_recreative/peche_loisir_PNMCCA_2025_traitement_Quentin.shp" # Donnees prétraitées par Quentin en 2025
+  raw_peche_clean <- "data/raw/peche_recreative/us_med_pnmcca_observatoire_peche_loisir_ofb_pt_2020_2024.gpkg"
+  raw_peche_resoblo <- "data/raw/peche_recreative/peche_resoblo.csv"
+
   # PNMCCA borders
   raw_pnmcca_borders <- "data/raw/pnm/N_ENP_PNM_S_000.shp"
 
@@ -42,13 +49,16 @@ with(paths_env, {
   processed_survols_errors <- "data/processed/survols/spatial/errors/"
   processed_survols_toverify <- "data/processed/survols/spatial/to_verify/"
   processed_survols_corrected <- "data/processed/survols/spatial/corrected/"
-  processed_survols_corrected2 <- "data/processed/survols/spatial/corrected2/"
+  processed_survols_hex <- "data/processed/survols/spatial/spatial_hex/"
 
   # Donia
   processed_donia_resoblo <- "data/processed/donia/donia_resoblo.csv"
   processed_donia_points <- "data/processed/donia/donia_points/donia_talassa.gpkg"
   processed_donia_hex <- "data/processed/donia/donia_hex/"
   processed_donia_rect <- "data/processed/donia/donia_rect/"
+
+  # Peche
+  processed_peche_hex <- "data/processed/peche/peche_hex/"
 
   # Outputs ----
   output_donia_type_navire <- "data/processed/donia/donia_type_navire.csv"

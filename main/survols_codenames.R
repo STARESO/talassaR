@@ -73,7 +73,6 @@ if (input_ref) {
 # Merging main dataset with error descriptions ----
 survols_usages_fusion <- left_join(survols_usages, survols_resoblo, by = join_by(act, cod_act))
 
-
 ## Checks ----
 
 # General structure

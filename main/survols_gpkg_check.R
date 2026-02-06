@@ -49,7 +49,6 @@ survols_all <- file_names %>%
   map(st_read, quiet = TRUE) %>%
   bind_rows()
 
-
 # General check ----
 skim(survols_all)
 
@@ -60,17 +59,36 @@ resoblo_verif <- survols_all %>%
   summarise(n = n()) %>%
   ungroup()
 
+
+## Saving mistakes files by identifying bad correspondence of names and codes
 # If mistakes, give line number of the object to check in source data
 # with line numbers corresponding to resoblo_verif dataset
-to_slice <- c(1, 3, 4, 6, 12, 14, 16, 20, 31, 39)
-to_slice <- c(13)
 
-resoblo_to_correct <- resoblo_verif %>%
-  slice(to_slice) %>%
-  mutate(key_resoblo = str_c(resoblo_code, resoblo_intitule, sep = "_"))
+slice_flag <- FALSE
 
-to_correct <- survols_all %>%
-  st_drop_geometry() %>%
-  mutate(key_resoblo = stringr::str_c(resoblo_code, resoblo_intitule, sep = "_")) %>%
-  right_join(., resoblo_to_correct) %>%
-  select(id_acti, date, resoblo_code, resoblo_intitule, key_resoblo)
+if (slice_flag) {
+  to_slice <- c(1, 3, 4, 6, 12, 14, 16, 20, 31, 39)
+  to_slice <- c(13)
+
+  resoblo_to_correct <- resoblo_verif %>%
+    slice(to_slice) %>%
+    mutate(key_resoblo = str_c(resoblo_code, resoblo_intitule, sep = "_"))
+
+  to_correct <- survols_all %>%
+    st_drop_geometry() %>%
+    mutate(key_resoblo = stringr::str_c(resoblo_code, resoblo_intitule, sep = "_")) %>%
+    right_join(., resoblo_to_correct) %>%
+    select(id_acti, date, resoblo_code, resoblo_intitule, key_resoblo)
+}
+
+sf::st_crs(survols_all)
+# Exporting total spatial dataset ----
+
+st_write(
+  obj = survols_all,
+  dsn = paste0(
+    paths$processed_survols_corrected,
+    "us_med_pnmcca_observatoire_survols_usages_ofb_pt_4326.gpkg"
+  ),
+  delete_dsn = TRUE
+)

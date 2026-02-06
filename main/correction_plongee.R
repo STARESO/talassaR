@@ -42,11 +42,11 @@ source("r/paths.R")
 ## Import des données ----
 
 # Données source plongée
-plongee_2023 <- sf::st_read(paths$raw_plongee_2023)
+plongee_2023 <- st_read(paths$raw_plongee_2023)
 plongee_2025 <- read.csv2(paths$raw_plongee_2025)
 
 # Délimitation spatiale du Parc
-pnm_borders <- sf::st_read(paths$raw_pnmcca_borders) %>%
+pnm_borders <- st_read(paths$raw_pnmcca_borders) %>%
   sf::st_transform(crs = 4326) %>%
   dplyr::filter(NOM_SITE == "cap Corse et Agriate")
 

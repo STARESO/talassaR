@@ -38,7 +38,7 @@ source("r/paths.R")
 source("r/fct_aggregate_to_grid.R")
 
 # Importing data ----
-donia_talassa <- st_read(paths$processed_donia_points)
+donia_talassa <- st_read(paths$processed_obs_donia)
 
 # Carroyage data
 hex_demi <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_hexagone_demimile.shp"))

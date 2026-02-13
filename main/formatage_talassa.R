@@ -73,6 +73,13 @@ codes_talassa <- codes_talassa %>%
 
 View(codes_talassa)
 
+# Création liens des codes en éliminant les potentielles répétitions
+# des codes TALASSA pour plusieurs codes RESOBLO détaillés
+codes_liens <- codes_talassa %>%
+  select(code_resoblo_plus_proche, talassa_code, talassa_intitule) %>%
+  distinct() %>%
+  filter(!is.na(code_resoblo_plus_proche))
+
 
 # Modification activites ----
 
@@ -89,9 +96,11 @@ if (sum(!plongee_bool) != 0) {
   simpleWarning("Codes Talassa plongée non valides, données non enregistrées.")
 }
 
-plongee_talassa <- codes_talassa %>%
-  select(code_resoblo_plus_proche, talassa_code, talassa_intitule) %>%
-  left_join(plongee_obs, ., by = join_by(resoblo_code_n1 == code_resoblo_plus_proche))
+plongee_talassa <- left_join(
+  x = plongee_obs,
+  y = codes_liens,
+  by = join_by(resoblo_code_n1 == code_resoblo_plus_proche)
+)
 
 plongee_talassa <- plongee_talassa %>%
   select(-c(resoblo_intitule_n1, resoblo_code_n1))
@@ -121,6 +130,7 @@ donia_obs <- donia_obs %>%
 donia_bool <- unique(donia_obs$resoblo_code) %in% codes_talassa$code_resoblo_plus_proche
 
 
+# Check codes Talassa donia non valides
 if (sum(!donia_bool) != 0) {
   simpleWarning("Codes Talassa Donia non valides, données non enregistrées.")
 
@@ -130,11 +140,54 @@ if (sum(!donia_bool) != 0) {
     select(resoblo_intitule, resoblo_code, resoblo_niveau) %>%
     distinct()
 
-  View(check_donia)
+  View(check_donia) # Infos activitiés sans lien matrice Talassa -> éliminées par la suite
 }
 
-# Modification habitats ----
+# Jointure donia talassa
+donia_talassa <- left_join(
+  x = donia_obs,
+  y = codes_liens,
+  by = join_by(resoblo_code == code_resoblo_plus_proche)
+) %>%
+  relocate(talassa_code, .after = resoblo_code) %>%
+  relocate(talassa_intitule, .after = resoblo_intitule)
 
+# Comparaison des dimensions pour verif bonne jointure
+dim(donia_obs)
+dim(donia_talassa)
+
+# Vérification plus approfondie de la jointure des codes
+donia_verif_liens <- donia_talassa %>%
+  st_drop_geometry() %>%
+  select(resoblo_intitule, talassa_intitule, resoblo_code, talassa_code) %>%
+  distinct() %>%
+  arrange(talassa_intitule)
+View(donia_verif_liens)
+
+# Elimination des entités sans codes TALASSA
+donia_talassa <- donia_talassa %>%
+  filter(!is.na(talassa_intitule))
+
+# Check des dimensions finales
+dim(donia_talassa)
+dim(donia_obs)[1] - dim(donia_talassa)[1] # 105 entités éliminées
+
+# Elimination des colonnes inutiles
+donia_talassa <- donia_talassa %>%
+  select(-contains("resoblo")) %>%
+  select(-c(
+    type_navire_brut,
+    type_navire,
+    time,
+    region,
+    code_masse_eau,
+    nom_masse_eau,
+    nom_bateau,
+    probabilite_impact,
+    classe_probabilite_impact
+  ))
+
+# Modification habitats ----
 
 # Exports ----
 
@@ -146,4 +199,10 @@ st_write(
   append = FALSE
 )
 
-st_write()
+# Donia
+st_write(
+  obj = donia_talassa,
+  dsn = paths$processed_tal_pts_donia,
+  driver = "gpkg",
+  append = FALSE
+)

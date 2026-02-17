@@ -61,6 +61,10 @@ pnm_borders <- sf::st_read(paths$raw_pnmcca_borders) %>%
   sf::st_transform(crs = 4326) %>%
   dplyr::filter(NOM_SITE == "cap Corse et Agriate")
 
+# Liens codes Resoblo - Donia
+donia_resoblo <- read.csv2(paths$raw_codes_donia) %>%
+  select(-type_navire)
+
 
 # Investigation et modifs initiales ----
 
@@ -213,10 +217,6 @@ if (carto) {
 # Ajout infos RESOBLO ----
 
 ## Jointure codes ----
-
-# Import référence liens codes Resoblo - Donia
-donia_resoblo <- read.csv2(paths$processed_donia_resoblo) %>%
-  select(-type_navire)
 
 # Ajout colonne code Resoblo niveau le plus précis
 donia_resoblo <- donia_resoblo %>%

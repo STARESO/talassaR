@@ -51,11 +51,10 @@ with(paths_env, {
   raw_carroyage_final <- "data/raw/carroyage/zone_biocenoses/grille_talassa_2025_cotier_hexagone_cinquiemedemile.shp"
 
   ### Référentiels codes et intitulés----
-  raw_codes_talassa <- "data/raw/codes/referentiel_codes_talassa_2026.xlsx"
+  raw_codes_talassa <- "data/raw/codes/referentiel_codes_resoblo_talassa.xlsx"
   raw_codes_peche <- "data/raw/codes/referentiel_codes_peche_resoblo.csv"
   raw_codes_donia <- "data/raw/codes/referentiel_codes_donia_resoblo.csv"
   raw_codes_habitats <- "data/raw/codes/referentiel_codes_habitats.xlsx"
-
 
   ## Processed data ----
 
@@ -66,7 +65,7 @@ with(paths_env, {
   processed_survols_toverify <- "data/processed/dev/survols/spatial/to_verify/"
   processed_survols_corrected <- "data/processed/dev/survols/spatial/corrected/"
   processed_survols_hex <- "data/processed/dev/survols/spatial/spatial_hex/"
-  processed_donia_resoblo <- "data/processed/dev/donia/donia_resoblo.csv"
+  # processed_donia_resoblo <- "data/processed/dev/donia/donia_resoblo.csv"
   processed_donia_type_navire <- "data/processed/dev/donia/donia_type_navire.csv"
   processed_donia_hex <- "data/processed/dev/donia/donia_hex/"
   processed_donia_rect <- "data/processed/dev/donia/donia_rect/"
@@ -84,7 +83,7 @@ with(paths_env, {
   processed_tal_pts_survolplaba <- "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_plaba_ofb_pts_4326.gpkg"
   processed_tal_pts_peche <- "data/processed/talassa_pts/us_med_pnmcca_talassa_peche_ofb_pts_4326.gpkg"
   processed_tal_pts_donia <- "data/processed/talassa_pts/us_med_pnmcca_talassa_donia_ofb_pts_4326.gpkg"
-  processed_tal_pts_plongee <- "data/processed/talassa_pts/us_med_pnmcca_talassa_plongee_sites_ofb_pts_4326.gpkg"
+  processed_tal_pts_plongee <- "data/processed/talassa_pts/us_med_pnmcca_talassa_plongee_ofb_pts_4326.gpkg"
   processed_tal_pts_habitats <- "data/processed/talassa_pts/eco_med_pnmcca_talassa_habitats_ofb_pts_4326.gpkg"
 
   # Données format Talassa maillées (hexagones)

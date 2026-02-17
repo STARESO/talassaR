@@ -55,7 +55,7 @@ codes_talassa <- read.xlsx(
 )
 
 # Activités format observatoire corrigé
-survolusage_obs <- st_read(paths$processed_obs_survolusage)
+survolus_obs <- st_read(paths$processed_obs_survolusage)
 peche_obs <- st_read(paths$processed_obs_peche)
 donia_obs <- st_read(paths$processed_obs_donia)
 plongee_obs <- st_read(paths$processed_obs_plongee)
@@ -85,8 +85,17 @@ codes_liens <- codes_talassa %>%
 
 ## Modification survols usages ----
 
+survolus_bool <- unique(survolus_obs$resoblo_code) %in% codes_talassa$code_resoblo_plus_proche
 
-## Modification survols plaba ----
+if (sum(!survolus_bool) != 0) {
+  simpleWarning("Codes Talassa survols non valides, données non enregistrées.")
+}
+
+plongee_talassa <- left_join(
+  x = survolus_obs,
+  y = codes_liens,
+  by = join_by(resoblo_code == code_resoblo_plus_proche)
+)
 
 
 ## Modification plongee ----
@@ -103,19 +112,46 @@ plongee_talassa <- left_join(
 )
 
 plongee_talassa <- plongee_talassa %>%
-  select(-c(resoblo_intitule_n1, resoblo_code_n1))
+  select(-c(resoblo_intitule_n1, resoblo_code_n1)) %>%
+  relocate(c(talassa_intitule, talassa_code), .after = id_prest)
 
 
-## Modification peche ----
+## Modification pêche ----
+peche_bool <- unique(peche_obs$resoblo_code) %in% codes_talassa$code_resoblo_plus_proche
 
+if (sum(!peche_bool) != 0) {
+  simpleWarning("Codes Talassa plongée non valides, données à vérifier.")
+}
+
+# Jointure codes TALASSA au jeu de données peche
+peche_talassa <- left_join(
+  x = peche_obs,
+  y = codes_liens,
+  by = join_by(resoblo_code == code_resoblo_plus_proche)
+)
+
+# Verification des correspondances de codes
+peche_verif_liens <- peche_talassa %>%
+  st_drop_geometry() %>%
+  select(resoblo_intitule, talassa_intitule, resoblo_code, talassa_code) %>%
+  distinct() %>%
+  arrange(talassa_intitule)
+View(peche_verif_liens)
+
+# Elimination des colonnes inutiles
+peche_talassa <- peche_talassa %>%
+  select(
+    id_obs,
+    talassa_intitule,
+    talassa_code,
+    date,
+    nb_pecheur,
+    prof_m,
+    temps_pech,
+    temps_pe_1
+  )
 
 ## Modification donia ----
-
-# map_taille <- category_map(donia_obs, "taille")
-# map_taille
-
-# map_region <- category_map(donia_obs, "region")
-# map_region
 
 # Check bateaux sans taille
 donia_obs %>%
@@ -190,6 +226,22 @@ donia_talassa <- donia_talassa %>%
 # Modification habitats ----
 
 # Exports ----
+
+# Survols usages
+st_write(
+  obj = survolus_talassa,
+  dsn = paths$processed_tal_pts_survolusage,
+  driver = "GPKG",
+  append = FALSE
+)
+
+# Peche de loisir
+st_write(
+  obj = peche_talassa,
+  dsn = paths$processed_tal_pts_peche,
+  driver = "GPKG",
+  append = FALSE
+)
 
 # Sites plongée
 st_write(

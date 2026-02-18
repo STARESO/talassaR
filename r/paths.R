@@ -2,7 +2,6 @@
 #' title : "talassaR - paths"
 #' author : Aubin Woehrel
 #' creation date : 2025-10-20
-#' last modification : 2025-10-22
 #' ---
 #'
 #' =============================================================================
@@ -10,16 +9,21 @@
 #' talassaR : Paths
 #'
 #' Description :
-#' Script to store all paths of project
+#' Enregistrement de tous les chemins d'accès dans la variable unique paths :
+#' 1) Enregistrement des chemins dans des variables au sein d'un environnement
+#' dédié
+#' 2) Creation des dossiers et emplacements si manquants
+#' 3) Sauvegarde des chemins dans la variable unique paths et suppression
+#' du reste des données considérées
 #'
 #' =============================================================================
 
-# Creating new environment just for paths
+# Creation d'un nouvel environement propre aux chemins
 paths_env <- new.env()
 
-# Populating paths in the path environment ----
+# Creation des variables environnement dans cet environnement ----
 with(paths_env, {
-  ## Raw data ----
+  ## Données sources ----
 
   ### Activités ----
   # Survols
@@ -51,16 +55,17 @@ with(paths_env, {
   raw_carroyage_final <- "data/raw/carroyage/zone_biocenoses/grille_talassa_2025_cotier_hexagone_cinquiemedemile.shp"
 
   ### Référentiels codes et intitulés----
+  raw_codes_survolusage <- "data/raw/codes/referentiel_codes_survolusages_resoblo.csv"
   raw_codes_talassa <- "data/raw/codes/referentiel_codes_resoblo_talassa.xlsx"
   raw_codes_peche <- "data/raw/codes/referentiel_codes_peche_resoblo.csv"
   raw_codes_donia <- "data/raw/codes/referentiel_codes_donia_resoblo.csv"
   raw_codes_habitats <- "data/raw/codes/referentiel_codes_habitats.xlsx"
 
-  ## Processed data ----
+  ## Données traitées ----
 
   # Données developpement
   processed_survols_codenom <- "data/processed/dev/survols/survols_usages_code_vs_nom_a_completer.csv"
-  processed_survols_resoblo <- "data/processed/dev/survols/survols_usages_code_vs_nom.csv"
+  # processed_survols_resoblo <- "data/processed/dev/survols/survols_usages_code_vs_nom.csv"
   processed_survols_errors <- "data/processed/dev/survols/spatial/errors/"
   processed_survols_toverify <- "data/processed/dev/survols/spatial/to_verify/"
   processed_survols_corrected <- "data/processed/dev/survols/spatial/corrected/"
@@ -91,11 +96,11 @@ with(paths_env, {
   processed_tal_hex_habitats <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_ofb_pol_4326.gpkg"
   processed_tal_hex_carroyage <- "data/processed/talassa_hex/us_med_pnmcca_talassa_carroyage_ofb_pol_4326.gpkg"
 
-  # Outputs ----
+  # Exports ----
   # NA for now but need Donia
 })
 
-# Create folders if missing ----
+# Création des dossiers si manquants ----
 
 # Extract all character paths from the environment
 all_paths <- as.list(paths_env)
@@ -120,6 +125,6 @@ sapply(all_folders, function(folder) {
   }
 })
 
-# Export for sourcing in other scripts ----
+# Export des chemins dans la variable paths pour un accès unique ----
 paths <- as.list(paths_env)
 rm(all_paths, all_folders, all_paths_vector, paths_env)

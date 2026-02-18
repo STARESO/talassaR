@@ -80,22 +80,40 @@ codes_liens <- codes_talassa %>%
   distinct() %>%
   filter(!is.na(code_resoblo_plus_proche))
 
-
 # Modification activites ----
 
 ## Modification survols usages ----
 
+# Réduction précision habitable/non habitable
+survolus_obs <- survolus_obs %>%
+  mutate(resoblo_code = case_when(
+    resoblo_code == "RECM.03.F04.A01" ~ "RECM.03.F04", # moteur habitable vers moteur
+    resoblo_code == "RECM.03.F04.A02" ~ "RECM.03.F04", # moteur non habitable vers moteur
+    resoblo_code == "RECM.03.F05.A01" ~ "RECM.03.F05", # voile habitable
+    resoblo_code == "RECM.03.F05.A02" ~ "RECM.03.F05", # voile non habitable
+    TRUE ~ resoblo_code
+  ))
+
+# Booléen présence/absence code dans association codes talassa
 survolus_bool <- unique(survolus_obs$resoblo_code) %in% codes_talassa$code_resoblo_plus_proche
 
 if (sum(!survolus_bool) != 0) {
   simpleWarning("Codes Talassa survols non valides, données non enregistrées.")
+
+  check_survolus <- survolus_obs %>%
+    st_drop_geometry() %>%
+    filter(resoblo_code %in% unique(survolus_obs$resoblo_code)[!survolus_bool]) %>%
+    select(resoblo_intitule, resoblo_code) %>%
+    distinct()
+
+  View(check_survolus)
 }
 
-plongee_talassa <- left_join(
-  x = survolus_obs,
-  y = codes_liens,
-  by = join_by(resoblo_code == code_resoblo_plus_proche)
-)
+
+# Elimination des colonnes inutiles
+survolus_talassa <- survolus_obs
+
+################################################ A FAIRE ################################################
 
 
 ## Modification plongee ----
@@ -150,6 +168,7 @@ peche_talassa <- peche_talassa %>%
     temps_pech,
     temps_pe_1
   )
+
 
 ## Modification donia ----
 

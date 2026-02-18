@@ -136,6 +136,15 @@ count_pdb <- peche_loisir %>%
 
 # Correction des données pré-corrigées ----
 
+check_techniques <- peche_loisir_clean %>%
+  st_drop_geometry() %>%
+  select(mod_pech, tech_util) %>%
+  group_by_all() %>%
+  summarize(n = n()) %>%
+  arrange(mod_pech, desc(n))
+
+View(check_techniques)
+
 # Jointure codes resoblo
 peche_resoblo <- left_join(peche_loisir_clean, codes_resoblo, by = join_by(mod_pech))
 
@@ -175,6 +184,7 @@ peche_resoblo <- peche_resoblo %>%
 # Changement type colonnes
 str(peche_resoblo)
 
+# Format date pour la colonne date
 peche_resoblo <- peche_resoblo %>%
   mutate(date = as.Date(date, format = "%d/%m/%Y"))
 

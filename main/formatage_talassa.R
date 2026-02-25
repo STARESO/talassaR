@@ -10,12 +10,13 @@
 #'
 #' Description :
 #' Script permettant de passer les jeux de données corrigés au format
-#' observatoire en jeux de données au format TALASSA.
+#' observatoire RESOBLO en jeux de données au format TALASSA.
 #' Consiste à :
 #' 1) Eliminer les colonnes inutiles
 #' 2) Uniformiser certaines colonnes si besoin
 #' 3) Remplacer les codes et intitulés RESOBLO par les codes TALASSA
-#' 4) Exporter au format gpkg (avec crs 4326)
+#' 4) Faire du recodage et filtrage de données (selon les jeux de données)
+#' 5) Exporter au format gpkg (en crs 4326)
 #'
 #'
 #' =============================================================================
@@ -109,15 +110,97 @@ if (sum(!survolus_bool) != 0) {
   View(check_survolus)
 }
 
+# Jointure codes talassa
+survolus_talassa <- left_join(
+  x = survolus_obs,
+  y = codes_liens,
+  by = join_by(resoblo_code == code_resoblo_plus_proche)
+)
 
-# Elimination des colonnes inutiles
-survolus_talassa <- survolus_obs
+# Check dimensions pour verif lignes constantes
+dim(survolus_obs)
+dim(survolus_talassa)
 
-################################################ A FAIRE ################################################
+# Verification des correspondances de codes
+survolus_verif_liens <- survolus_talassa %>%
+  st_drop_geometry() %>%
+  select(resoblo_intitule, talassa_intitule, resoblo_code, talassa_code) %>%
+  distinct() %>%
+  arrange(talassa_intitule)
+# View(survolus_verif_liens)
+
+# Check des états de navires
+check_etats <- survolus_talassa %>%
+  st_drop_geometry() %>%
+  count(etat_nav, talassa_intitule, talassa_code, name = "n")
+# View(check_etats)
+
+# Colonnes à garder
+survolus_keep <- c(
+  "resoblo_intitule",
+  "resoblo_code",
+  "talassa_intitule",
+  "talassa_code",
+  "date",
+  "taille_nav",
+  "etat_nav"
+)
+
+# Elimination colonnes et lignes inutiles
+survolus_talassa <- survolus_talassa %>%
+  select(all_of(survolus_keep)) %>% # selection colonnes utiles
+  filter(!is.na(talassa_code)) %>% # tous les cas sans code talassa
+  filter(!etat_nav %in% c("echoue", "stockage")) # eohoue et stockage sans intérêt modélo talassa
+
+# Lien navires à passer au code ponton si statut ponton
+codes_ponton <- c(
+  "recm_03_f04_a00", # plaisance a moteur
+  "recm_03_f05_a00", # plaisance a voile
+  "tram_01_f03_a01" # bateau-bus ou bacs
+)
+
+# Lien navires à passer au code ancre si statut ancre
+codes_ancre <- c(
+  "recm_03_f04_a00", # plaisance a moteur
+  "recm_03_f05_a00", # plaisance a voile
+  "tram_01_f03_a01", # bateau-bus ou bacs
+  "recm_01_f01_a03", # plongee scaphandre
+  "tram_01_f01_a02" # promenade en mer sur voilier
+)
+
+# Lien navires à passer au code corps_morts si statut corps_morts
+codes_corptsmorts <- c(
+  "recm_03_f04_a00", # plaisance a moteur
+  "recm_03_f05_a00", # plaisance a voile
+  "tram_01_f03_a01", # bateau-bus ou bacs
+  "recm_04_f03_a00" # sports motonautiques sur vnm
+)
+
+# Référence liens intitules et codes talassa pour ponton, ancrage, corps morts
+recz_lookup <- codes_talassa %>%
+  select(talassa_code, talassa_intitule) %>%
+  filter(talassa_code %in% c("recz_00_f00_a02", "recz_00_f00_a03", "recz_00_f00_a04")) %>%
+  distinct()
+
+# Changement intitule bateaux plaisance carenage, ponton, ancrage ou corps morts
+survolus_talassa <- survolus_talassa %>%
+  mutate(talassa_code = case_when(
+    etat_nav %in% c("quai", "amarre") & talassa_code %in% codes_ponton ~ "recz_00_f00_a02",
+    etat_nav == "ancre" & talassa_code %in% codes_ancre ~ "recz_00_f00_a03",
+    etat_nav == "corps_morts" & talassa_code %in% codes_corptsmorts ~ "recz_00_f00_a04",
+    TRUE ~ talassa_code
+  )) %>%
+  left_join(recz_lookup, by = "talassa_code", suffix = c("", "_new")) %>% # Jointure nouveaux intitulés
+  mutate(talassa_intitule = coalesce(talassa_intitule_new, talassa_intitule)) %>% # Changement si intitulés nouveaux
+  select(-talassa_intitule_new)
+
+# Elimination codes resoblo
+survolus_talassa <- survolus_talassa %>%
+  select(-c(contains("resoblo"), "etat_nav"))
 
 
 ## Modification plongee ----
-plongee_bool <- unique(plongee_obs$resoblo_code_n1) %in% codes_talassa$code_resoblo_plus_proche
+plongee_bool() <- unique(plongee_obs$resoblo_code_n1) %in% codes_talassa$code_resoblo_plus_proche
 
 if (sum(!plongee_bool) != 0) {
   simpleWarning("Codes Talassa plongée non valides, données non enregistrées.")
@@ -168,7 +251,6 @@ peche_talassa <- peche_talassa %>%
     temps_pech,
     temps_pe_1
   )
-
 
 ## Modification donia ----
 

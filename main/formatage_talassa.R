@@ -81,9 +81,7 @@ codes_liens <- codes_talassa %>%
   distinct() %>%
   filter(!is.na(code_resoblo_plus_proche))
 
-# Modification activites ----
-
-## Modification survols usages ----
+# Modification survols usages ----
 
 # Réduction précision habitable/non habitable
 survolus_obs <- survolus_obs %>%
@@ -199,7 +197,7 @@ survolus_talassa <- survolus_talassa %>%
   select(-c(contains("resoblo"), "etat_nav"))
 
 
-## Modification plongee ----
+# Modification plongee ----
 plongee_bool() <- unique(plongee_obs$resoblo_code_n1) %in% codes_talassa$code_resoblo_plus_proche
 
 if (sum(!plongee_bool) != 0) {
@@ -217,7 +215,7 @@ plongee_talassa <- plongee_talassa %>%
   relocate(c(talassa_intitule, talassa_code), .after = id_prest)
 
 
-## Modification pêche ----
+# Modification pêche ----
 peche_bool <- unique(peche_obs$resoblo_code) %in% codes_talassa$code_resoblo_plus_proche
 
 if (sum(!peche_bool) != 0) {
@@ -252,7 +250,7 @@ peche_talassa <- peche_talassa %>%
     temps_pe_1
   )
 
-## Modification donia ----
+# Modification donia ----
 
 # Check bateaux sans taille
 donia_obs %>%
@@ -265,7 +263,6 @@ donia_obs <- donia_obs %>%
 
 # Check presence
 donia_bool <- unique(donia_obs$resoblo_code) %in% codes_talassa$code_resoblo_plus_proche
-
 
 # Check codes Talassa donia non valides
 if (sum(!donia_bool) != 0) {

@@ -1,48 +1,45 @@
 #' ---
-#' title : "talassaR - codename issues"
+#' title : "talassaR - correction survols check1"
 #' author : Aubin Woehrel
 #' creation date : 2025-09-16
-#' last modification : 2025-10-22
 #' ---
 #'
 #' =============================================================================
 #'
-#' talassaR :
-#' Code name issues
+#' talassaR : Correction survols check n1
 #'
 #' Description :
-#' Small script to check lines where code of activity does not correspond to the
-#' right activity name
+#' Script permettant de faire la première étape de check des données de survol
+#' des usages (plan d'eau) du PNMCCA.
 #'
 #' =============================================================================
 
-# Initialization ----
+# Initialisation ----
 
-## Clean up and working directory ----
+## Nettoyage ----
 rm(list = ls())
 
-## Library imports ----
+## Import des librairies ----
 
-# Data import and tidying
+# Data: Import et manipulations
 library("dplyr")
 library("tidyr")
 
-# Spatial
+# Data: Spatial
 library("sf")
 
-## Sourcing local resources ----
+## Ressources locales ----
 source("r/paths.R")
 
-## Importing data ----
+## Import des données ----
 survols_usages <- readRDS(paths$raw_survols_usages)
-
 
 # Code vs intitule verifications ----
 
-## Data precheck ----
+## Check structure ----
 skimr::skim(survols_usages)
 
-## Checks ----
+## Checks association codes - intitulés ----
 code_vs_nom <- survols_usages %>%
   select(cod_act, act) %>%
   group_by(cod_act, act) %>%
@@ -55,30 +52,33 @@ code_vs_nom_byyear <- survols_usages %>%
   summarize(erreur_code_n = n()) %>%
   arrange(cod_act, annee)
 
-## Exports of name and code linking ----
+## Exports status associations codes intitulés ----
 
-### Output for referencing codes manually
+# Ecriture csv à corriger/completer
 output_ref <- TRUE
 if (output_ref) {
   write.csv2(code_vs_nom, paths$processed_survols_codenom)
 }
 
-### Input of manual completed code linking
+# Import du csv des nouvelles associations et description erreurs
 input_ref <- TRUE
 if (input_ref) {
-  survols_resoblo <- read.csv(paths$processed_survols_resoblo, sep = ";")
+  survols_resoblo <- read.csv(paths$raw_codes_survolusage, sep = ";")
 }
 
+# Jointure données avec description erreurs ----
+survols_usages_fusion <- left_join(
+  x = survols_usages,
+  y = survols_resoblo,
+  by = join_by(act, cod_act)
+)
 
-# Merging main dataset with error descriptions ----
-survols_usages_fusion <- left_join(survols_usages, survols_resoblo, by = join_by(act, cod_act))
+## Checks n2 ----
 
-## Checks ----
-
-# General structure
+# Structure générale
 skimr::skim(survols_usages_fusion)
 
-# Number of errors per season
+# Nombre d'erreurs par saison
 t1 <- survols_usages_fusion %>%
   filter(erreur_code == "invalide") %>%
   group_by(
@@ -103,32 +103,32 @@ t1 <- survols_usages_fusion %>%
   mutate(mois = factor(mois, levels = c("Juin", "Juillet", "Aout", "Septembre"))) %>%
   arrange(annee, mois, cod_act, act)
 
-t1
+View(t1)
 
-# Changing names
+# Changement noms de colonnes vers resoblo
 survols_usages_fusion <- survols_usages_fusion %>%
   mutate(
     resoblo_code = suggestion_resoblo_code,
     resoblo_intitule = suggestion_resoblo_intitule
   )
 
-# Exporting to spatial data ----
+# Export vers format spatial ----
 
-## Spatial transfo ----
+## Transfo spatiale ----
 spatial_usages <- st_as_sf(
-  survols_usages_fusion,
+  x = survols_usages_fusion,
   coords = c("lon_x", "lat_y"),
   crs = 4326
 )
 
-## Export files per flight date ----
+## Export fichier spatial par date pour correction ----
 
-# Get unique years to create year folders
+# Recupération des années uniques
 unique_years <- unique(spatial_usages$annee)
 
-# Looping over the years
+# Boucle sur les années
 for (year in unique_years) {
-  # Folders for the year
+  # Dossiers pour les années
   folder_toverify <- file.path(paths$processed_survols_toverify, year, fsep = "")
   folder_errors <- file.path(paths$processed_survols_errors, year, fsep = "")
 
@@ -140,16 +140,15 @@ for (year in unique_years) {
     dir.create(folder_errors)
   }
 
-  # Get all dates for the current year
+  # Recupération de toutes les dates pour l'année considérée
   dates_in_year <- unique(spatial_usages$date[spatial_usages$annee == year]) %>% sort()
 
-  # Loop through each date position of the year
+  # Boucle sur les dates de l'année
   for (i in seq_along(dates_in_year)) {
-
-    # Date of the loop
+    # La date i considérée
     date_wanted <- dates_in_year[i]
 
-    # Filter the spatial data for the current date
+    # Filtration des données sources pour la date considérée
     spatial_subdata <- spatial_usages %>%
       filter(date == date_wanted) %>%
       rename(
@@ -157,9 +156,9 @@ for (year in unique_years) {
         description = erreur_code_description,
         suggestion = erreur_code_suggestion
       ) %>%
-      mutate(across(c(d_heur_sur, f_heur_sur), ~as.character(hms::as_hms(.))))
+      mutate(across(c(d_heur_sur, f_heur_sur), ~ as.character(hms::as_hms(.))))
 
-    # Getting only mistakes
+    # Uniquement récupération des infos erreurs
     errors_subdata <- spatial_subdata %>%
       filter(valide == "invalide") %>%
       select(
@@ -177,26 +176,39 @@ for (year in unique_years) {
         resoblo_intitule
       )
 
-    # Filenames with the survey date
+    # Noms de fichiers avec la date de survol
+
+    # Toutes les données à la date donnée
     subdata_filename <- file.path(
       folder_toverify,
       paste0("survol_usages_toverify_", format(date_wanted, "%Y-%m-%d"), ".gpkg")
     )
 
+    # Que les erreurs à la date donnée
     errors_filename <- file.path(
       folder_errors,
       paste0("survol_usages_errors_", format(date_wanted, "%Y-%m-%d"), ".gpkg")
     )
 
-    # Export the subdataset as spatial data
-    st_write(spatial_subdata, subdata_filename, driver = "GPKG", append = FALSE)
+    # Export des données au format spatial
+    st_write(
+      obj = spatial_subdata,
+      dsn = subdata_filename,
+      driver = "GPKG",
+      append = FALSE
+    )
 
-    # In case of mistakes
+    # Export des erreurs au format spatial
     if (dim(errors_subdata)[1] > 0) {
-      st_write(errors_subdata, errors_filename, driver = "GPKG", append = FALSE)
+      st_write(
+        obj = errors_subdata,
+        dsn = errors_filename,
+        driver = "GPKG",
+        append = FALSE
+      )
     }
 
-    # Print confirmation
+    # Messages de confirmation
     message(paste("Exported spatial data to verify:", subdata_filename))
     message(paste("Exported error data to verify:", errors_filename))
   }

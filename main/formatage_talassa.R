@@ -6,7 +6,7 @@
 #'
 #' =============================================================================
 #'
-#' talassaR : Formatage des données observatoire en format TALASSA
+#' talassaR : Formatage des données activités observatoire vers format TALASSA
 #'
 #' Description :
 #' Script permettant de passer les jeux de données corrigés au format
@@ -321,14 +321,12 @@ donia_talassa <- donia_talassa %>%
     classe_probabilite_impact
   ))
 
-# Modification habitats ----
-
 # Exports ----
 
 # Survols usages
 st_write(
   obj = survolus_talassa,
-  dsn = paths$processed_tal_pts_survolusage,
+  dsn = paths$processed_tal_survolusage,
   driver = "GPKG",
   append = FALSE
 )
@@ -336,7 +334,7 @@ st_write(
 # Peche de loisir
 st_write(
   obj = peche_talassa,
-  dsn = paths$processed_tal_pts_peche,
+  dsn = paths$processed_tal_peche,
   driver = "GPKG",
   append = FALSE
 )
@@ -344,7 +342,7 @@ st_write(
 # Sites plongée
 st_write(
   obj = plongee_talassa,
-  dsn = paths$processed_tal_pts_plongee,
+  dsn = paths$processed_tal_plongee,
   driver = "GPKG",
   append = FALSE
 )
@@ -352,7 +350,7 @@ st_write(
 # Donia
 st_write(
   obj = donia_talassa,
-  dsn = paths$processed_tal_pts_donia,
+  dsn = paths$processed_tal_donia,
   driver = "gpkg",
   append = FALSE
 )

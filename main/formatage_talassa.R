@@ -198,7 +198,7 @@ survolus_talassa <- survolus_talassa %>%
 
 
 # Modification plongee ----
-plongee_bool() <- unique(plongee_obs$resoblo_code_n1) %in% codes_talassa$code_resoblo_plus_proche
+plongee_bool <- unique(plongee_obs$resoblo_code_n1) %in% codes_talassa$code_resoblo_plus_proche
 
 if (sum(!plongee_bool) != 0) {
   simpleWarning("Codes Talassa plongée non valides, données non enregistrées.")

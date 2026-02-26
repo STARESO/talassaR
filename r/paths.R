@@ -46,6 +46,7 @@ with(paths_env, {
   ### Habitats et carroyage ----
   # Habitats
   raw_habitats_andromede <- "data/raw/habitats/biocenoses_andromede_PNMCCA_2025_fixed_geometry_by_stareso.shp"
+  raw_habitats_grottes <- "data/raw/habitats/grottes.shp"
 
   # PNMCCA borders
   raw_pnmcca_borders <- "data/raw/pnm/N_ENP_PNM_S_000.shp"

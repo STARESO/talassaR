@@ -55,12 +55,18 @@ with(paths_env, {
   raw_carroyage <- "data/raw/carroyage/zone_biocenoses/"
   raw_carroyage_final <- "data/raw/carroyage/zone_biocenoses/grille_talassa_2025_cotier_hexagone_cinquiemedemile.shp"
 
-  ### Référentiels codes et intitulés----
-  raw_codes_survolusage <- "data/raw/codes/referentiel_codes_survolusages_resoblo.csv"
-  raw_codes_talassa <- "data/raw/codes/referentiel_codes_resoblo_talassa.xlsx"
-  raw_codes_peche <- "data/raw/codes/referentiel_codes_peche_resoblo.csv"
-  raw_codes_donia <- "data/raw/codes/referentiel_codes_donia_resoblo.csv"
-  raw_codes_habitats <- "data/raw/codes/referentiel_codes_habitats.xlsx"
+  ### Référentiels codes et intitulés ----
+  raw_codes_survolusage <- "data/raw/codes/reference_codes_survolusages_resoblo.csv"
+  raw_codes_talassa <- "data/raw/codes/reference_codes_resoblo_talassa.xlsx"
+  raw_codes_peche <- "data/raw/codes/reference_codes_peche_resoblo.csv"
+  raw_codes_donia <- "data/raw/codes/reference_codes_donia_resoblo.csv"
+  raw_codes_habitats <- "data/raw/codes/reference_codes_habitats.xlsx"
+
+  # Références formules et IC carroyage ----
+  raw_devcarroyage_activites <- "data/raw/references_carroyage/references_carroyage_activites_a_completer.xlsx"
+  raw_devcarroyage_habitats <- "data/raw/references_carroyage/reference_carroyage_habitats_a_completer.xlsx"
+  raw_refcarroyage_activites <- "data/raw/references_carroyage/reference_carroyage_activites.xlsx"
+  raw_refcarroyage_habitats <- "data/raw/references_carroyage/reference_carroyage_habitats.xlsx"
 
   ## Données traitées ----
 
@@ -100,34 +106,33 @@ with(paths_env, {
   processed_hex_carroyage <- "data/processed/talassa_hex/us_med_pnmcca_talassa_carroyage_ofb_pol_4326.gpkg"
 
   # Exports ----
-  # NA for now but need Donia
+  # NA --> pas d'exports pour l'instant
 })
 
 # Création des dossiers si manquants ----
 
-# Extract all character paths from the environment
+# Enregistrement des chemins de l'environnement paths_env dans la variable all_paths
 all_paths <- as.list(paths_env)
 all_paths_vector <- unlist(all_paths)
 
+# Liste de l'architecture des dossiers des chemins de all_paths
 all_folders <- sapply(all_paths_vector, function(p) {
-  if (grepl("/$", p)) {
-    # It's already a directory path
+  if (grepl("/$", p)) { # Déjà un chemin
     p
-  } else {
-    # It's a file path; extract folder
+  } else { # Extraction du dossier concerné par le chemin
     dirname(p)
   }
 }, USE.NAMES = FALSE)
 
 all_folders <- unique(all_folders)
 
-# Create directories if needed
+# Création des dossiers en local si inexistants
 sapply(all_folders, function(folder) {
   if (!dir.exists(folder)) {
     dir.create(folder, recursive = TRUE)
   }
 })
 
-# Export des chemins dans la variable paths pour un accès unique ----
+# Export des chemins dans la variable paths pour un accès dans d'autres scripts ----
 paths <- as.list(paths_env)
 rm(all_paths, all_folders, all_paths_vector, paths_env)

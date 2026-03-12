@@ -63,7 +63,7 @@ with(paths_env, {
   raw_codes_habitats <- "data/raw/codes/reference_codes_habitats.xlsx"
 
   # Références formules et IC carroyage ----
-  raw_devcarroyage_activites <- "data/raw/references_carroyage/references_carroyage_activites_a_completer.xlsx"
+  raw_devcarroyage_activites <- "data/raw/references_carroyage/reference_carroyage_activites_a_completer.xlsx"
   raw_devcarroyage_habitats <- "data/raw/references_carroyage/reference_carroyage_habitats_a_completer.xlsx"
   raw_refcarroyage_activites <- "data/raw/references_carroyage/reference_carroyage_activites.xlsx"
   raw_refcarroyage_habitats <- "data/raw/references_carroyage/reference_carroyage_habitats.xlsx"

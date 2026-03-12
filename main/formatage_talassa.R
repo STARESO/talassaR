@@ -196,6 +196,29 @@ survolus_talassa <- survolus_talassa %>%
 survolus_talassa <- survolus_talassa %>%
   select(-c(contains("resoblo"), "etat_nav"))
 
+# Check des classes de tailles de navires uniques
+unique(survolus_talassa$taille_nav)
+
+# Tableau de lien entre classes de taille et facteurs de calcul
+# Classes de taille dans la colonne "to"
+linktaille <- tribble(
+  ~from,     ~to,
+  NA,        1, # Pour les absences de taille, considération impact minimum
+  "8",       1,
+  "8_18",    2,
+  "18_24",   3,
+  "24_45",   4,
+  "45",      5
+)
+
+# Recodage selon linktaille
+survolus_talassa <- survolus_talassa %>%
+  mutate(taille_facteur = recode_values(
+    taille_nav,
+    from = linktaille$from,
+    to = linktaille$to
+  ))
+
 
 # Modification plongee ----
 plongee_bool <- unique(plongee_obs$resoblo_code_n1) %in% codes_talassa$code_resoblo_plus_proche
@@ -204,12 +227,14 @@ if (sum(!plongee_bool) != 0) {
   simpleWarning("Codes Talassa plongée non valides, données non enregistrées.")
 }
 
+# Jointure
 plongee_talassa <- left_join(
   x = plongee_obs,
   y = codes_liens,
   by = join_by(resoblo_code_n1 == code_resoblo_plus_proche)
 )
 
+# Elimination colonnes resoblo
 plongee_talassa <- plongee_talassa %>%
   select(-c(resoblo_intitule_n1, resoblo_code_n1)) %>%
   relocate(c(talassa_intitule, talassa_code), .after = id_prest)

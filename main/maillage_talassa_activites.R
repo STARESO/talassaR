@@ -87,7 +87,6 @@ all_codes <- data_list %>%
   list_rbind() %>%
   arrange(talassa_code)
 
-
 # Export des combinaisons de codes et jeux de données en format xlsx.
 all_codes %>%
   select(-n) %>%
@@ -98,7 +97,8 @@ all_codes %>%
   relocate(variables, .after = last_col()) %>%
   write.xlsx(
     x = .,
-    file = paths$raw_devcarroyage_activites
+    file = paths$raw_devcarroyage_activites,
+    sheetName = "ref"
   )
 
 # Permet de compléter manuellement l'excel avec les formules de calcul
@@ -107,20 +107,26 @@ all_codes %>%
 # le chemin paths$raw_refcarroyage_activites
 paths$raw_refcarroyage_activites
 
+formula_ref <- read.xlsx(
+  xlsxFile = paths$raw_refcarroyage_activites,
+  sheet = "ref"
+)
 
 # Jointure ID maillage ----
 
+# Jointure avec fonction personnalisée jointure_id (cf fct_jointure_id.R)
 resultats_carroyage <- map(
   .x = list(survolus_talassa, peche_talassa, donia_talassa, plongee_talassa),
   .f = ~ jointure_id(carroyage = carroyage_hex, data = .x, id_name = "id_hex")
 )
 
+# Reassignation (format liste sortie map vers jeux de données)
 survolus_carroyage <- resultats_carroyage[[1]]
 peche_carroyage <- resultats_carroyage[[2]]
 donia_carroyage <- resultats_carroyage[[3]]
 plongee_carroyage <- resultats_carroyage[[4]]
 
-
+# Check des dimensions
 dim(survolus_talassa)
 dim(survolus_carroyage)
 
@@ -133,11 +139,87 @@ dim(donia_carroyage)
 dim(plongee_talassa)
 dim(plongee_carroyage)
 
+
 # Agrégation par activités (au sein de chaque jeu de données) ----
+survolus_carroyage <- formula_ref %>%
+  filter(source == "survol_usage") %>%
+  select(talassa_code, formule) %>%
+  left_join(
+    x = survolus_carroyage,
+    y = .,
+    by = join_by(talassa_code)
+  )
+
+peche_carroyage <- formula_ref %>%
+  filter(source == "peche") %>%
+  select(talassa_code, formule) %>%
+  left_join(
+    x = peche_carroyage,
+    y = .,
+    by = join_by(talassa_code)
+  )
+
+donia_carroyage <- formula_ref %>%
+  filter(source == "donia") %>%
+  select(talassa_code, formule) %>%
+  left_join(
+    x = donia_carroyage,
+    y = .,
+    by = join_by(talassa_code)
+  )
+
+plongee_carroyage <- formula_ref %>%
+  filter(source == "plongee") %>%
+  select(talassa_code, formule) %>%
+  left_join(
+    x = plongee_carroyage,
+    y = .,
+    by = join_by(talassa_code)
+  )
+
+test <- survolus_carroyage
+unique(test$formule)
+
+
+# Fonction de calcul des intensités d'activités par maille et par activité
+intensite_computation <- function(
+  data,
+  id_carroyage = "id_hex",
+  scale_min = 0.01,
+  scale_max = 1
+) {
+  # Computing weights per entity based on formula and available variables
+  data_new <- data %>%
+    rowwise() %>%
+    mutate(
+      cweight = ifelse(
+        is.na(formule),
+        NA,
+        eval(parse(text = formule))
+      )
+    )
+
+  names(data_new)
+
+  # Computing intensity based on weights
+  data_new <- data_new %>%
+    # Sum per cell and activity
+    group_by(.data[[id_carroyage]], talassa_code) %>%
+    summarize(intensite = sum(cweight)) %>%
+    # Rescaling by activity
+    group_by(talassa_code) %>%
+    mutate(intensite = scales::rescale(intensite, to = c(scale_min, scale_max))) %>%
+    arrange(talassa_code, intensite)
+}
+
+test <- intensite_computation(data = survolus_carroyage)
+
+
+
 
 # Agregation d'intensité d'activité entre jeux de données ----
 
-# Jointure spatiale ID activités - hexagones
+# Jointure spatiale ID activités - hexagones ----
 
 # Agrégation intervalles de confiance ----
 

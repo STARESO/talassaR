@@ -143,7 +143,7 @@ dim(plongee_carroyage)
 # Agrégation par activités (au sein de chaque jeu de données) ----
 survolus_carroyage <- formula_ref %>%
   filter(source == "survol_usage") %>%
-  select(talassa_code, formule) %>%
+  select(talassa_code, formule, ic) %>%
   left_join(
     x = survolus_carroyage,
     y = .,
@@ -152,7 +152,7 @@ survolus_carroyage <- formula_ref %>%
 
 peche_carroyage <- formula_ref %>%
   filter(source == "peche") %>%
-  select(talassa_code, formule) %>%
+  select(talassa_code, formule, ic) %>%
   left_join(
     x = peche_carroyage,
     y = .,
@@ -161,7 +161,7 @@ peche_carroyage <- formula_ref %>%
 
 donia_carroyage <- formula_ref %>%
   filter(source == "donia") %>%
-  select(talassa_code, formule) %>%
+  select(talassa_code, formule, ic) %>%
   left_join(
     x = donia_carroyage,
     y = .,
@@ -170,59 +170,144 @@ donia_carroyage <- formula_ref %>%
 
 plongee_carroyage <- formula_ref %>%
   filter(source == "plongee") %>%
-  select(talassa_code, formule) %>%
+  select(talassa_code, formule, ic) %>%
   left_join(
     x = plongee_carroyage,
     y = .,
     by = join_by(talassa_code)
   )
 
-test <- survolus_carroyage
-unique(test$formule)
-
-
 # Fonction de calcul des intensités d'activités par maille et par activité
 intensite_computation <- function(
   data,
+  type,
   id_carroyage = "id_hex",
   scale_min = 0.01,
   scale_max = 1
 ) {
-  # Computing weights per entity based on formula and available variables
+  # Calcul des poids par entités sur la base de formules et variables à disposition
   data_new <- data %>%
     rowwise() %>%
     mutate(
       cweight = ifelse(
         is.na(formule),
-        NA,
+        1, # A verifier si ok dans toutes les situations
         eval(parse(text = formule))
       )
     )
 
   names(data_new)
 
-  # Computing intensity based on weights
+  # Calcul du niveau d'intensité basé sur les poids
   data_new <- data_new %>%
-    # Sum per cell and activity
+    # Somme par cellule et par activité
     group_by(.data[[id_carroyage]], talassa_code) %>%
-    summarize(intensite = sum(cweight)) %>%
-    # Rescaling by activity
+    summarize(
+      intensite = sum(cweight),
+      ic = unique(ic) # Ici ou autre endroit plus adapté ?
+    ) %>%
+    # Réechelonnage par activité entre valeurs scale_min et scale_max
     group_by(talassa_code) %>%
     mutate(intensite = scales::rescale(intensite, to = c(scale_min, scale_max))) %>%
     arrange(talassa_code, intensite)
+
+  # Ajout de la colonne type pour les étapes prochaines
+  data_new <- data_new %>%
+    mutate(type = type)
 }
 
-test <- intensite_computation(data = survolus_carroyage)
+# Passage des temps de pêche depuis format caractères HMS vers difftime en secondes vers numérique
+peche_carroyage <- peche_carroyage %>%
+  mutate(across(
+    .cols = c(temps_pech, temps_pe_1),
+    .fns = function(x) {
+      as.numeric(as.difftime(x, units = "secs"))
+    }
+  ))
 
-
-
+survolus_carroyage2 <- intensite_computation(data = survolus_carroyage, type = "survolus")
+peche_carroyage2 <- intensite_computation(data = peche_carroyage, type = "peche")
+donia_carroyage2 <- intensite_computation(data = donia_carroyage, type = "donia")
+plongee_carroyage2 <- intensite_computation(data = plongee_carroyage, type = "plongee")
 
 # Agregation d'intensité d'activité entre jeux de données ----
+agregation_carroyage <- rbind(
+  survolus_carroyage2,
+  peche_carroyage2,
+  donia_carroyage2,
+  plongee_carroyage2
+)
+
+# Check du nombre d'occurences avec 1 ou plus de 1 jeux de données pour une combinaison
+# activité-id_carroyage
+nombre_agregations <- agregation_carroyage %>%
+  count(id_hex, talassa_code, name = "nombre_jeux_données") %>%
+  ungroup() %>%
+  count(nombre_jeux_données)
+
+View(nombre_agregations) # total de 188 hexagones avec combinaison de sources de données
+
+# Calcul moyenne intensité d'activité
+agregation_carroyage <- agregation_carroyage %>%
+  group_by(id_hex, talassa_code) %>%
+  summarize(
+    intensite = mean(intensite),
+    ic = min(ic) # IC pris comme le minimum de l'IC
+  )
+
+# Verification nombre agregations
+nombre_agregations <- agregation_carroyage %>%
+  count(id_hex, talassa_code, name = "nombre_jeux_données") %>%
+  ungroup() %>%
+  count(nombre_jeux_données)
+
+View(nombre_agregations) # Ok : 1 valeur uniquement par combinaison activité-id_carroyage
+
+# Organisation par codes talassa
+agregation_carroyage <- agregation_carroyage %>%
+  arrange(talassa_code, id_hex)
+
+# Passage au format large (colonnes par code activité)
+
+agregation_longer <- agregation_carroyage %>%
+  pivot_longer(cols = c(intensite, ic)) %>%
+  mutate(name = case_when(
+    name == "intensite" ~ talassa_code, # code_talassa
+    TRUE ~ paste0(talassa_code, "_", name) # code_talassa + ic
+  )) %>%
+  select(-talassa_code) %>%
+  arrange(name, id_hex)
+
+agregation_wider <- agregation_longer %>%
+  pivot_wider(
+    names_from = name,
+    values_from = value,
+    values_fill = 0
+  )
 
 # Jointure spatiale ID activités - hexagones ----
+
+# Jointure
+agregation_hex <- left_join(
+  x = carroyage_hex,
+  y = agregation_wider,
+  by = join_by(id_hex)
+)
+
+# Transfo format final
+agregation_hex <- agregation_hex %>%
+  select(-c(left, top, right, bottom)) %>%
+  mutate(across(-c(geometry, id_hex), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
+  st_as_sf()
 
 # Agrégation intervalles de confiance ----
 
 # Jointure Intensités et IC ----
 
 # Exports ----
+st_write(
+  obj = agregation_hex,
+  dsn = paths$processed_hex_activites,
+  driver = "gpkg",
+  append = FALSE
+)

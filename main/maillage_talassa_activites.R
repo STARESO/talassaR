@@ -26,7 +26,6 @@ library("dplyr")
 library("tidyr")
 library("stringr")
 library("purrr")
-library("openxlsx")
 
 # Spatial
 library("sf")
@@ -48,12 +47,12 @@ plongee_talassa <- st_read(paths$processed_tal_plongee)
 carroyage_hex <- st_read(paths$raw_carroyage_final) %>%
   st_transform(., crs = 4326)
 
+
 # Precheck ----
 names(survolus_talassa)
 names(peche_talassa)
 names(donia_talassa)
 names(plongee_talassa)
-
 
 # Liste des jeux de données et leurs noms
 data_list <- list(
@@ -268,7 +267,6 @@ agregation_carroyage <- agregation_carroyage %>%
   arrange(talassa_code, id_hex)
 
 # Passage au format large (colonnes par code activité)
-
 agregation_longer <- agregation_carroyage %>%
   pivot_longer(cols = c(intensite, ic)) %>%
   mutate(name = case_when(
@@ -299,10 +297,6 @@ agregation_hex <- agregation_hex %>%
   select(-c(left, top, right, bottom)) %>%
   mutate(across(-c(geometry, id_hex), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
   st_as_sf()
-
-# Agrégation intervalles de confiance ----
-
-# Jointure Intensités et IC ----
 
 # Exports ----
 st_write(

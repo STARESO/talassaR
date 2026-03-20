@@ -48,8 +48,9 @@ with(paths_env, {
   raw_habitats_andromede <- "data/raw/habitats/biocenoses_andromede_PNMCCA_2025_fixed_geometry_by_stareso.shp"
   raw_habitats_grottes <- "data/raw/habitats/grottes.shp"
 
-  # PNMCCA borders
-  raw_pnmcca_borders <- "data/raw/pnm/N_ENP_PNM_S_000.shp"
+  # Délimitations carto PNM & Corse
+  raw_pnmcca_borders <- "data/raw/pnm/delimitation_pnmcca_2154.gpkg"
+  raw_corsica_borders <- "data/raw/pnm/histolitt_corse_region_4326.gpkg"
 
   # Carroyage
   raw_carroyage <- "data/raw/carroyage/zone_biocenoses/"
@@ -99,10 +100,12 @@ with(paths_env, {
   processed_tal_plongee <- "data/processed/talassa_pts/us_med_pnmcca_talassa_plongee_ofb_pts_4326.gpkg"
   processed_tal_habitats <- "data/processed/talassa_pts/eco_med_pnmcca_talassa_habitats_ofb_pol_4326.gpkg"
   processed_tal_grottes <- "data/processed/talassa_pts/eco_med_pnmcca_talassa_grottes_ofb_pts_4326.gpkg"
+  processed_tal_habitats_intermediaire <- "data/processed/talassa_pts/talassa_habitats_decoupe_intermediaire_par_hexcinquieme.gpkg"
 
   # Données format Talassa maillées (hexagones)
   processed_hex_activites <- "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_ofb_pol_4326.gpkg"
-  processed_hex_habitats <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_ofb_pol_4326.gpkg"
+  processed_hex_habitats_m2 <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_surface_ofb_pol_4326.gpkg"
+  processed_hex_habitats_pct <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_pourcentage_ofb_pol_4326.gpkg"
   processed_hex_carroyage <- "data/processed/talassa_hex/us_med_pnmcca_talassa_carroyage_ofb_pol_4326.gpkg"
 
   # Exports ----

@@ -104,8 +104,10 @@ with(paths_env, {
 
   # Données format Talassa maillées (hexagones)
   processed_hex_activites <- "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_ofb_pol_4326.gpkg"
-  processed_hex_habitats_m2 <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_surface_ofb_pol_4326.gpkg"
-  processed_hex_habitats_pct <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_pourcentage_ofb_pol_4326.gpkg"
+  processed_hex_activites_intitule <- "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_intitules_ofb_pol_4326.gpkg"
+  processed_hex_habitats <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_ofb_pol_4326.gpkg"
+  processed_hex_habitats_m2 <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_wide_surface_ofb_pol_4326.gpkg"
+  processed_hex_habitats_pct <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_wide_pourcentage_ofb_pol_4326.gpkg"
   processed_hex_carroyage <- "data/processed/talassa_hex/us_med_pnmcca_talassa_carroyage_ofb_pol_4326.gpkg"
 
   # Exports ----

@@ -12,6 +12,8 @@
 #' Script permettant de passer des données activités ponctuelles au format
 #' TALASSA vers des données activités intégrées au maillage TALASSA choisi.
 #'
+#' Note : ic == indice de confiance
+#'
 #' =============================================================================
 
 # Initialisation ----
@@ -26,6 +28,7 @@ library("dplyr")
 library("tidyr")
 library("stringr")
 library("purrr")
+library("openxlsx")
 
 # Spatial
 library("sf")
@@ -46,7 +49,6 @@ plongee_talassa <- st_read(paths$processed_tal_plongee)
 # Carroyages
 carroyage_hex <- st_read(paths$raw_carroyage_final) %>%
   st_transform(., crs = 4326)
-
 
 # Precheck ----
 names(survolus_talassa)
@@ -200,13 +202,13 @@ intensite_computation <- function(
   # Calcul du niveau d'intensité basé sur les poids
   data_new <- data_new %>%
     # Somme par cellule et par activité
-    group_by(.data[[id_carroyage]], talassa_code) %>%
+    group_by(.data[[id_carroyage]], talassa_code, talassa_intitule) %>%
     summarize(
       intensite = sum(cweight),
       ic = unique(ic) # Ici ou autre endroit plus adapté ?
     ) %>%
     # Réechelonnage par activité entre valeurs scale_min et scale_max
-    group_by(talassa_code) %>%
+    group_by(talassa_code, talassa_intitule) %>%
     mutate(intensite = scales::rescale(intensite, to = c(scale_min, scale_max))) %>%
     arrange(talassa_code, intensite)
 
@@ -248,7 +250,7 @@ View(nombre_agregations) # total de 188 hexagones avec combinaison de sources de
 
 # Calcul moyenne intensité d'activité
 agregation_carroyage <- agregation_carroyage %>%
-  group_by(id_hex, talassa_code) %>%
+  group_by(id_hex, talassa_code, talassa_intitule) %>%
   summarize(
     intensite = mean(intensite),
     ic = min(ic) # IC pris comme le minimum de l'IC
@@ -264,14 +266,19 @@ View(nombre_agregations) # Ok : 1 valeur uniquement par combinaison activité-id
 
 # Organisation par codes talassa
 agregation_carroyage <- agregation_carroyage %>%
-  arrange(talassa_code, id_hex)
+  arrange(talassa_code, id_hex) %>%
+  ungroup()
+
+
+## Version noms de colonnes -> codes talassa ----
 
 # Passage au format large (colonnes par code activité)
 agregation_longer <- agregation_carroyage %>%
+  select(-talassa_intitule) %>%
   pivot_longer(cols = c(intensite, ic)) %>%
   mutate(name = case_when(
     name == "intensite" ~ talassa_code, # code_talassa
-    TRUE ~ paste0(talassa_code, "_", name) # code_talassa + ic
+    TRUE ~ paste0(talassa_code, "_iq") # code_talassa + ic
   )) %>%
   select(-talassa_code) %>%
   arrange(name, id_hex)
@@ -298,10 +305,55 @@ agregation_hex <- agregation_hex %>%
   mutate(across(-c(geometry, id_hex), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
   st_as_sf()
 
+
+## Version noms de colonnes -> intituleés talassa ----
+
+# Passage au format large (colonnes par code activité)
+agregation_longer2 <- agregation_carroyage %>%
+  select(-talassa_code) %>%
+  mutate(talassa_intitule = str_replace_all(talassa_intitule, " ", "_")) %>%
+  pivot_longer(cols = c(intensite, ic)) %>%
+  mutate(name = case_when(
+    name == "intensite" ~ talassa_intitule, # code_talassa
+    TRUE ~ paste0(talassa_intitule, "_iq") # code_talassa + ic
+  )) %>%
+  select(-talassa_intitule) %>%
+  arrange(name, id_hex)
+
+
+agregation_wider2 <- agregation_longer2 %>%
+  pivot_wider(
+    names_from = name,
+    values_from = value,
+    values_fill = 0
+  )
+
+# Jointure spatiale ID activités - hexagones ----
+
+# Jointure
+agregation_hex2 <- left_join(
+  x = carroyage_hex,
+  y = agregation_wider2,
+  by = join_by(id_hex)
+)
+
+# Transfo format final
+agregation_hex2 <- agregation_hex2 %>%
+  select(-c(left, top, right, bottom)) %>%
+  mutate(across(-c(geometry, id_hex), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
+  st_as_sf()
+
 # Exports ----
 st_write(
   obj = agregation_hex,
   dsn = paths$processed_hex_activites,
+  driver = "gpkg",
+  append = FALSE
+)
+
+st_write(
+  obj = agregation_hex2,
+  dsn = paths$processed_hex_activites_intitule,
   driver = "gpkg",
   append = FALSE
 )

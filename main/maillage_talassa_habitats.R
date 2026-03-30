@@ -93,9 +93,12 @@ carroyage_final <- carroyage_cote %>%
     by = join_by(id_hex)
   )
 
+carroyage_final <- carroyage_final %>%
+  mutate(srm = "MED") %>%
+  relocate(srm, .after = id_hex)
+
 # Réduction utilisation environnement
 rm(carroyage_hex, carroyage_cote, intersection_cote)
-
 
 # Calcul surface habitats ----
 
@@ -110,7 +113,7 @@ habitats_talassa <- habitats_talassa %>%
 # Calcul surface sommé de chaque type d'habitat par hexagone (par id_hex)
 habitats_sum <- habitats_talassa %>%
   st_drop_geometry(.) %>%
-  group_by(id_hex, talassa_code) %>%
+  group_by(id_hex, talassa_code, talassa_intitule) %>%
   summarise(
     aire_habitat = round(sum(aire_habitat, na.rm = TRUE)),
     .groups = "drop"
@@ -132,6 +135,41 @@ carroyage_habitats <- carroyage_habitats %>%
     pourcentage_terre = as.numeric(round(aire_terre / aire_maille * 100, 2)),
     pourcentage_mer = 100 - pourcentage_terre
   )
+
+carroyage_habitats <- carroyage_habitats %>%
+  relocate(srm, .after = id_hex) %>%
+  st_drop_geometry() %>%
+  select(-geometry)
+
+# Jointure geométrie hexagones carroyage final
+carroyage_habitats_final <- left_join(
+  x = carroyage_final %>% select(id_hex, geometry),
+  y = carroyage_habitats,
+  by = join_by(id_hex)
+)
+dim(carroyage_habitats)
+dim(carroyage_habitats_final)
+
+# Exports ----
+
+# Carroyage final
+st_write(
+  obj = carroyage_final,
+  dsn = paths$processed_hex_carroyage,
+  driver = "gpkg",
+  append = FALSE
+)
+
+# Carroyage habitat format long
+st_write(
+  obj = carroyage_habitat_final,
+  dsn = paths$processed_hex_habitats,
+  driver = "gpkg",
+  append = FALSE
+)
+
+
+# Bonus ancien format ----
 
 # Pivot vers format large avec une ligne = un hexagone pour valeurs aires en m2
 habitats_wide_m2 <- carroyage_habitats %>%
@@ -171,17 +209,6 @@ habitats_wide_pct <- left_join(
   x = carroyage_final %>% select(id_hex, geometry),
   y = habitats_wide_pct,
   by = join_by(id_hex)
-)
-
-
-# Exports ----
-
-# Carroyage final
-st_write(
-  obj = carroyage_final,
-  dsn = paths$processed_hex_carroyage,
-  driver = "gpkg",
-  append = FALSE
 )
 
 # Données habitats en unité surfacique m2

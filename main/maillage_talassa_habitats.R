@@ -169,6 +169,15 @@ st_write(
 )
 
 
+
+
+
+
+
+
+
+
+
 # Bonus ancien format ----
 
 # Pivot vers format large avec une ligne = un hexagone pour valeurs aires en m2

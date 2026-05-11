@@ -20,7 +20,7 @@
 
 # Initialisation ----
 
-## Nettoyage ----
+## Nettoyage ---- 
 rm(list = ls())
 
 ## Import des librairies ----

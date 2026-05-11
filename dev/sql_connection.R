@@ -35,14 +35,13 @@ library("DBI")
 # Sourcing local scripts ----
 
 # Connection with RPostgres package ----
-
 con <- dbConnect(
   RPostgres::Postgres(),
   dbname   = "postgres",
   host     = "localhost",     # or IP, e.g., "192.168.1.100"
   port     = 5432,
   user     = "postgres",
-  password = "stareso1972"
+  password = "postgres"
 )
 
 # Connection with odbc package (doesnt work) ----
@@ -60,6 +59,8 @@ if (FALSE) {
 
 # Testing the different function of the package
 dbListTables(con)
+
+all_schemas <- DBI::dbGetQuery(con, "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA")
 
 # Importing survols data
 survols_plaba <- readRDS(paths$survols_plaba)

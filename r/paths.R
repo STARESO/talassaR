@@ -43,6 +43,10 @@ with(paths_env, {
   raw_plongee_2023 <- "data/raw/plongee/Plongée_2023.shp"
   raw_plongee_2025 <- "data/raw/plongee/plongée_SIG_2025.csv"
 
+  # ais
+  raw_ais_vesselfinder <- "data/raw/ais/ais_vessel_finder_2009-2024_pnmcca.gpkg"
+  raw_ais_marinetraffic <- "data/raw/ais/ais_marine_traffic_2025"
+
   ### Habitats et carroyage ----
   # Habitats
   raw_habitats_andromede <- "data/raw/habitats/biocenoses_andromede_PNMCCA_2025_fixed_geometry_by_stareso.shp"
@@ -89,6 +93,7 @@ with(paths_env, {
   processed_obs_peche <- "data/processed/observatoire/us_med_pnmcca_observatoire_peche_recreative_ofb_pts_4326.gpkg"
   processed_obs_donia <- "data/processed/observatoire/us_med_pnmcca_observatoire_donia_ofb_pts_4326.gpkg"
   processed_obs_plongee <- "data/processed/observatoire/us_med_pnmcca_observatoire_plongee_sites_ofb_pts_4326.gpkg"
+  processed_obs_ais <- "data/processed/observatoire/us_med_pnmcca_observatoire_ais_vesselfinder_pts_4326.gpkg"
   processed_obs_habitats <- "data/processed/observatoire/eco_med_pnmcca_observatoire_habitats_andromede_pol_4326.gpkg"
   processed_obs_grottes <- "data/processed/observatoire/eco_med_pnmcca_observatoire_grottes_ofb_pts_4326.gpkg"
 
@@ -98,6 +103,7 @@ with(paths_env, {
   processed_tal_peche <- "data/processed/talassa_pts/us_med_pnmcca_talassa_peche_ofb_pts_4326.gpkg"
   processed_tal_donia <- "data/processed/talassa_pts/us_med_pnmcca_talassa_donia_ofb_pts_4326.gpkg"
   processed_tal_plongee <- "data/processed/talassa_pts/us_med_pnmcca_talassa_plongee_ofb_pts_4326.gpkg"
+  processed_tal_ais <- "data/processed/talassa_pts/us_med_pnmcca_talassa_ais_vesselfinder_pts_4326.gpkg"
   processed_tal_habitats <- "data/processed/talassa_pts/eco_med_pnmcca_talassa_habitats_ofb_pol_4326.gpkg"
   processed_tal_grottes <- "data/processed/talassa_pts/eco_med_pnmcca_talassa_grottes_ofb_pts_4326.gpkg"
   processed_tal_habitats_intermediaire <- "data/processed/talassa_pts/talassa_habitats_decoupe_intermediaire_par_hexcinquieme.gpkg"

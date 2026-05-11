@@ -66,6 +66,10 @@ with(paths_env, {
   raw_codes_peche <- "data/raw/codes/reference_codes_peche_resoblo.csv"
   raw_codes_donia <- "data/raw/codes/reference_codes_donia_resoblo.csv"
   raw_codes_habitats <- "data/raw/codes/reference_codes_habitats.xlsx"
+  raw_codes_pressions <- "data/raw/codes/reference_codes_pressions.xlsx"
+  
+  # Matrices de sensibilité et de pression
+  raw_mat_sensibilite <- "data/raw/matrices/matrice_sensibilite_habitats_format_lariviere.xlsx"
 
   # Références formules et IC carroyage ----
   raw_devcarroyage_activites <- "data/raw/references_carroyage/reference_carroyage_activites_a_completer.xlsx"
@@ -107,6 +111,9 @@ with(paths_env, {
   processed_tal_habitats <- "data/processed/talassa_pts/eco_med_pnmcca_talassa_habitats_ofb_pol_4326.gpkg"
   processed_tal_grottes <- "data/processed/talassa_pts/eco_med_pnmcca_talassa_grottes_ofb_pts_4326.gpkg"
   processed_tal_habitats_intermediaire <- "data/processed/talassa_pts/talassa_habitats_decoupe_intermediaire_par_hexcinquieme.gpkg"
+
+  # Données matrices
+  processed_mat_sensibilites <- "data/processed/matrices/sensibilites.rds"
 
   # Données format Talassa maillées (hexagones)
   processed_hex_activites <- "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_ofb_pol_4326.gpkg"

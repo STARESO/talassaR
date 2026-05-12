@@ -60,6 +60,3 @@ dbWriteTable(
   overwrite = FALSE, 
   append = FALSE
 )
-
-# Liste des tables dispos
-dbListTables(co cn

@@ -6,11 +6,16 @@
 #'
 #' =============================================================================
 #'
-#' talassaR : Formatage des matrices de pression et de sensibilité
+#' talassaR : Formatage des matrices de liens activités-pressions et sensibilité 
+#' aux pressions
 #'
 #' Description :
-#' Script permettant de formater les matrices de pression et de sensibilité 
-#' talassa au bon format utilisable pour le modèle
+#' Script permettant de formater les matrices de liens activité-pressions et 
+#' sensibilité aux pressions au bon format utilisable pour le modèle ou 
+#' intégrable dans les jeux de données considérés
+#' 
+#' Permet par ailleurs l'intégration des codes talassa de pression dans les 
+#' deux matrices
 #' 
 #' =============================================================================
 
@@ -37,6 +42,13 @@ source("r/paths.R")
 matrice_sensibilite <- read.xlsx(
   xlsxFile = paths$raw_mat_sensibilite,
   sheet = "sensibilite",
+  fillMergedCells = TRUE
+)
+
+# Codes habitats
+codes_habitats <- read.xlsx(
+  xlsxFile = paths$raw_codes_habitats,
+  sheet = "codes",
   fillMergedCells = TRUE
 )
 

@@ -35,7 +35,7 @@ source("r/paths.R")
 ## Import des données -----
 
 # Habitats
-habitats_talassa <- st_read(paths$processed_tal_habitats_intermediaire)
+habitats_talassa <- st_read(paths$processed_tal_habitats_intermediaire) # Version découpée sur mailles via QGIS
 grottes_talassa <- st_read(paths$processed_tal_grottes)
 
 # Carroyage
@@ -45,9 +45,11 @@ carroyage_hex <- st_read(paths$raw_carroyage_final) %>%
 # Côte Corse
 cote_corse <- st_read(paths$raw_corsica_borders)
 
+# Sensibilités aux pressions
+sensibilite <- readRDS(paths$processed_mat_sensibilites)
+
 # Precheck ----
 names(habitats_talassa)
-names(habitats_intermediaire)
 names(grottes_talassa)
 
 names(carroyage_hex)
@@ -100,6 +102,7 @@ carroyage_final <- carroyage_final %>%
 # Réduction utilisation environnement
 rm(carroyage_hex, carroyage_cote, intersection_cote)
 
+
 # Calcul surface habitats ----
 
 # Transfo crs
@@ -113,11 +116,13 @@ habitats_talassa <- habitats_talassa %>%
 # Calcul surface sommé de chaque type d'habitat par hexagone (par id_hex)
 habitats_sum <- habitats_talassa %>%
   st_drop_geometry(.) %>%
-  group_by(id_hex, talassa_code, talassa_intitule) %>%
+  group_by(id_hex, talassa_code, talassa_intitule, hab_iq) %>%
   summarise(
-    aire_habitat = round(sum(aire_habitat, na.rm = TRUE)),
-    .groups = "drop"
+    aire_habitat = round(sum(aire_habitat, na.rm = TRUE))
   )
+
+dim(habitats_talassa)
+dim(habitats_sum)
 
 # Jointure du carroyage final sur les polygones d'habitats sommés
 # pour calcul pourcentage surface avec 1 ligne = 1 polygone habitat
@@ -141,14 +146,46 @@ carroyage_habitats <- carroyage_habitats %>%
   st_drop_geometry() %>%
   select(-geometry)
 
-# Jointure geométrie hexagones carroyage final
-carroyage_habitats_final <- left_join(
+# Jointure geométrie hexagones carroyage final (qq hexagones en + explique delta dim())
+carroyage_habitats <- left_join(
   x = carroyage_final %>% select(id_hex, geometry),
   y = carroyage_habitats,
   by = join_by(id_hex)
 )
-dim(carroyage_habitats)
-dim(carroyage_habitats_final)
+
+# Jointure valeurs de sensiblite aux données spatiales d'habitats
+sensibilite <- sensibilite %>%
+  rename(talassa_intitule_check = talassa_intitule)
+
+carroyage_habitats <- left_join(
+  x = carroyage_habitats,
+  y = sensibilite, 
+  by = join_by(talassa_code)
+)
+
+# Changements noms et réagencement colonnes pour correspondance exacte format modélo
+carroyage_habitats_final <- carroyage_habitats %>%
+  rename(
+    id2 = id_hex, 
+    surf_cel = aire_maille, 
+    surf_ter = aire_terre, 
+    surfmer = aire_mer, 
+    surfhab_cel = aire_habitat,
+    surfhab_pcel = pourcentage_habitat,
+    hab_lib = talassa_intitule
+  ) %>%
+  select(-c(talassa_intitule_check, pourcentage_mer, pourcentage_terre)) %>%
+  select(id2, srm, surf_cel, surf_ter, surfmer, surfhab_cel, surfhab_pcel, hab_lib, talassa_code, hab_iq, everything())
+
+
+# Changement nom id pour carroyage_final
+carroyage_final <- carroyage_final %>%
+  rename(
+    id2 = id_hex,
+    surf_cel = aire_maille, 
+    surf_ter = aire_terre, 
+    surfmer = aire_mer,
+  )
 
 # Exports ----
 
@@ -162,76 +199,8 @@ st_write(
 
 # Carroyage habitat format long
 st_write(
-  obj = carroyage_habitat_final,
+  obj = carroyage_habitats_final,
   dsn = paths$processed_hex_habitats,
-  driver = "gpkg",
-  append = FALSE
-)
-
-
-
-
-
-
-
-
-
-
-
-# Bonus ancien format ----
-
-# Pivot vers format large avec une ligne = un hexagone pour valeurs aires en m2
-habitats_wide_m2 <- carroyage_habitats %>%
-  pivot_wider(
-    id_cols = c("id_hex", "aire_maille", "aire_mer", "aire_terre"),
-    names_from = talassa_code,
-    values_from = aire_habitat,
-    values_fill = 0
-  )
-
-# Quelques pertes d'infos hexagones
-dim(habitats_wide_m2)
-dim(carroyage_final)
-
-# Jointure sur le carroyage complet final pour éviter les pertes d'hexagones
-habitats_wide_m2 <- left_join(
-  x = carroyage_final %>% select(id_hex, geometry),
-  y = habitats_wide_m2,
-  by = join_by(id_hex)
-)
-
-# Pivot vers format large avec une ligne = un hexagone pour valeurs pourcentage
-habitats_wide_pct <- carroyage_habitats %>%
-  pivot_wider(
-    id_cols = c("id_hex", "aire_maille", "pourcentage_mer", "pourcentage_terre"),
-    names_from = talassa_code,
-    values_from = pourcentage_habitat,
-    values_fill = 0
-  )
-
-# Quelques pertes d'hexagones
-dim(habitats_wide_pct)
-dim(carroyage_final)
-
-# Jointure sur le carroyage complet final
-habitats_wide_pct <- left_join(
-  x = carroyage_final %>% select(id_hex, geometry),
-  y = habitats_wide_pct,
-  by = join_by(id_hex)
-)
-
-# Données habitats en unité surfacique m2
-st_write(
-  obj = habitats_wide_m2,
-  dsn = paths$processed_hex_habitats_m2,
-  driver = "gpkg",
-  append = FALSE
-)
-
-# Données habitats en pourcentage d'aire
-st_write(
-  obj = habitats_wide_pct,
-  dsn = paths$processed_hex_habitats_pct,
   driver = "gpkg",
   append = FALSE
 )

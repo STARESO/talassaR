@@ -98,11 +98,11 @@ habitats <- habitats %>%
 # Format nathab
 habitats_nathab <- habitats %>%
   select(-c(contains("talassa"), commentaire)) %>%
-  relocate(surfstat, nathab_code, nathab_intitule, .before = EU_CD)
+  relocate(surfstat, nathab_code, nathab_intitule, hab_iq, .before = EU_CD)
 
 # Format talassa
 habitats_talassa <- habitats %>%
-  select(contains("talassa"), date, geometry)
+  select(contains("talassa"), hab_iq, date, geometry)
 
 ## Biocénoses grottes ----
 

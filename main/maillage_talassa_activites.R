@@ -305,6 +305,10 @@ agregation_hex <- agregation_hex %>%
   mutate(across(-c(geometry, id_hex), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
   st_as_sf()
 
+# Changement nom de la colonne d'id vers id2 (nomenclature modèle)
+agregation_hex <- agregation_hex %>%
+  rename_with(~ "id2", starts_with("id"))
+
 
 ## Version noms de colonnes -> intituleés talassa ----
 
@@ -342,6 +346,10 @@ agregation_hex2 <- agregation_hex2 %>%
   select(-c(left, top, right, bottom)) %>%
   mutate(across(-c(geometry, id_hex), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
   st_as_sf()
+
+# Changement nom de la colonne d'id vers id2 (nomenclature modèle)
+agregation_hex2 <- agregation_hex2 %>%
+  rename_with(~ "id2", starts_with("id"))
 
 # Exports ----
 st_write(

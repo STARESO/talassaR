@@ -123,6 +123,10 @@ with(paths_env, {
   processed_hex_habitats_pct <- "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_wide_pourcentage_ofb_pol_4326.gpkg"
   processed_hex_carroyage <- "data/processed/talassa_hex/us_med_pnmcca_talassa_carroyage_ofb_pol_4326.gpkg"
 
+  # Aide parametrage
+  processed_params_combinaisons <- "data/processed/params/talassa_liste_combinaisons_activites.xlsx"
+
+
   # Exports ----
   # NA --> pas d'exports pour l'instant
 })

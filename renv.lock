@@ -284,6 +284,30 @@
       "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
+    "RPostgreSQL": {
+      "Package": "RPostgreSQL",
+      "Version": "0.7-8",
+      "Source": "Repository",
+      "Date": "2025-03-28",
+      "Title": "R Interface to the 'PostgreSQL' Database System",
+      "Maintainer": "Tomoaki Nishiyama <tomoaki@sci.u-toyama.ac.jp>",
+      "Description": "Database interface and 'PostgreSQL' driver for 'R'. This package provides a Database Interface 'DBI' compliant  driver for 'R' to access 'PostgreSQL' database systems.   In order to build and install this package from source, 'PostgreSQL'  itself must be present your system to provide 'PostgreSQL' functionality  via its libraries and header files. These files are provided as 'postgresql-devel' package under some Linux distributions. On 'macOS' and 'Microsoft Windows' system the attached 'libpq' library source will be used.",
+      "LazyLoad": "true",
+      "Depends": [
+        "R (>= 3.4.0)",
+        "methods",
+        "DBI (>= 0.3)"
+      ],
+      "License": "GPL-3 | file LICENSE",
+      "Copyright": "Authors listed above, PostgreSQL Global Development Group, and The Regents of the University of California",
+      "Collate": "S4R.R zzz.R PostgreSQLSupport.R dbObjectId.R PostgreSQL.R",
+      "URL": "https://github.com/tomoakin/RPostgreSQL, https://cran.r-project.org/package=DBI, https://www.postgresql.org",
+      "Authors@R": "c(person(given = \"Joe\", family = \"Conway\", role = \"aut\"), person(given = \"Dirk\", family = \"Eddelbuettel\", role = \"aut\"), person(given = \"Tomoaki\", family = \"Nishiyama\", role = c(\"aut\", \"cre\"), email = \"tomoaki@sci.u-toyama.ac.jp\"), person(given = c(\"Sameer\", \"Kumar\"), family = \"Prayaga\", role = \"aut\", comment = \"during 2008\"), person(given = \"Neil\", family = \"Tiffin\", role = \"aut\"))",
+      "NeedsCompilation": "yes",
+      "Author": "Joe Conway [aut], Dirk Eddelbuettel [aut], Tomoaki Nishiyama [aut, cre], Sameer Kumar Prayaga [aut] (during 2008), Neil Tiffin [aut]",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8"
+    },
     "RPostgres": {
       "Package": "RPostgres",
       "Version": "1.4.10",
@@ -4455,6 +4479,45 @@
       "NeedsCompilation": "no",
       "Author": "JJ Allaire [aut], Yihui Xie [aut, cre] (ORCID: <https://orcid.org/0000-0003-0645-5666>), Christophe Dervieux [aut] (ORCID: <https://orcid.org/0000-0003-4474-2498>), Jonathan McPherson [aut], Javier Luraschi [aut], Kevin Ushey [aut], Aron Atkins [aut], Hadley Wickham [aut], Joe Cheng [aut], Winston Chang [aut], Richard Iannone [aut] (ORCID: <https://orcid.org/0000-0003-3925-190X>), Andrew Dunning [ctb] (ORCID: <https://orcid.org/0000-0003-0464-5036>), Atsushi Yasumoto [ctb, cph] (ORCID: <https://orcid.org/0000-0002-8335-495X>, cph: Number sections Lua filter), Barret Schloerke [ctb], Carson Sievert [ctb] (ORCID: <https://orcid.org/0000-0002-4958-2844>), Devon Ryan [ctb] (ORCID: <https://orcid.org/0000-0002-8549-0971>), Frederik Aust [ctb] (ORCID: <https://orcid.org/0000-0003-4900-788X>), Jeff Allen [ctb], JooYoung Seo [ctb] (ORCID: <https://orcid.org/0000-0002-4064-6012>), Malcolm Barrett [ctb], Rob Hyndman [ctb], Romain Lesur [ctb], Roy Storey [ctb], Ruben Arslan [ctb], Sergio Oller [ctb], Posit Software, PBC [cph, fnd], jQuery UI contributors [ctb, cph] (jQuery UI library; authors listed in inst/rmd/h/jqueryui/AUTHORS.txt), Mark Otto [ctb] (Bootstrap library), Jacob Thornton [ctb] (Bootstrap library), Bootstrap contributors [ctb] (Bootstrap library), Twitter, Inc [cph] (Bootstrap library), Alexander Farkas [ctb, cph] (html5shiv library), Scott Jehl [ctb, cph] (Respond.js library), Ivan Sagalaev [ctb, cph] (highlight.js library), Greg Franko [ctb, cph] (tocify library), John MacFarlane [ctb, cph] (Pandoc templates), Google, Inc. [ctb, cph] (ioslides library), Dave Raggett [ctb] (slidy library), W3C [cph] (slidy library), Dave Gandy [ctb, cph] (Font-Awesome), Ben Sperry [ctb] (Ionicons), Drifty [cph] (Ionicons), Aidan Lister [ctb, cph] (jQuery StickyTabs), Benct Philip Jonsson [ctb, cph] (pagebreak Lua filter), Albert Krewinkel [ctb, cph] (pagebreak Lua filter)",
       "Maintainer": "Yihui Xie <xie@yihui.name>",
+      "Repository": "CRAN"
+    },
+    "rpostgis": {
+      "Package": "rpostgis",
+      "Version": "1.6.0",
+      "Source": "Repository",
+      "Date": "2024-12-05",
+      "Title": "R Interface to a 'PostGIS' Database",
+      "Description": "Provides an interface between R and 'PostGIS'-enabled 'PostgreSQL' databases to transparently transfer spatial data. Both vector (points, lines, polygons) and raster data are supported in read and write modes. Also provides convenience functions to execute common procedures in 'PostgreSQL/PostGIS'.",
+      "Authors@R": "c( person(\"Adrian\", \"Cidre Gonzalez\",  email = \"adrian.cidre@gmail.com\",  role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-3310-3052\")), person(\"Mathieu\", \"Basille\", email = \"mathieu@basille.org\",  role = c(\"aut\"),  comment = c(ORCID = \"0000-0001-9366-7127\")), person(\"David\", \"Bucklin\",  email = \"david.bucklin@gmail.com\",  role = c(\"aut\")))",
+      "SystemRequirements": "'PostgreSQL' with 'PostGIS' extension",
+      "Depends": [
+        "R (>= 3.3.0)",
+        "RPostgreSQL",
+        "DBI (>= 0.5)"
+      ],
+      "Imports": [
+        "methods",
+        "sf",
+        "stats",
+        "terra (>= 1.6.7)",
+        "cli",
+        "lifecycle"
+      ],
+      "Suggests": [
+        "RPostgres",
+        "testthat (>= 3.0.0)",
+        "sp",
+        "raster"
+      ],
+      "License": "GPL (>= 3)",
+      "URL": "https://cidree.github.io/rpostgis/, https://github.com/Cidree/rpostgis",
+      "BugReports": "https://github.com/Cidree/rpostgis/issues",
+      "RoxygenNote": "7.3.2",
+      "Encoding": "UTF-8",
+      "Config/testthat/edition": "3",
+      "NeedsCompilation": "no",
+      "Author": "Adrian Cidre Gonzalez [aut, cre] (<https://orcid.org/0000-0002-3310-3052>), Mathieu Basille [aut] (<https://orcid.org/0000-0001-9366-7127>), David Bucklin [aut]",
+      "Maintainer": "Adrian Cidre Gonzalez <adrian.cidre@gmail.com>",
       "Repository": "CRAN"
     },
     "rstatix": {

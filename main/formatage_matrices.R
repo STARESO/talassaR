@@ -131,6 +131,9 @@ sapply(sensibilite_wider[,-c(1, 2)], \(x) {all(is.na(x), na.rm = TRUE)})
 sensibilite_wider <- sensibilite_wider %>%
   select_if(~ !all(is.na(.)))
 
+# Remplacement des NA par 99
+sensibilite_wider <- sensibilite_wider %>%
+  mutate(across(everything(), ~ ifelse(is.na(.), 99, .)))
 
 # Exports ----
 saveRDS(object = sensibilite_wider, file = paths$processed_mat_sensibilites)

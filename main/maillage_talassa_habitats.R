@@ -146,10 +146,13 @@ carroyage_habitats <- carroyage_habitats %>%
   st_drop_geometry() %>%
   select(-geometry)
 
-# Jointure geométrie hexagones carroyage final (qq hexagones en + explique delta dim())
+# Jointure geométrie hexagones carroyage final
+###### ATTENTION, A INVESTIGUER MAIS IL SEMBLE Y AVOIR DES HEXAGONES SANS HABITATS ??
+###### POUR L'INSTANT, SWITCH X ET Y DANS JOIN POUR EVITER HEXAGONES DE CARROYAGE FINAL 
+###### SANS HABITATS EN PLUS
 carroyage_habitats <- left_join(
-  x = carroyage_final %>% select(id_hex, geometry),
-  y = carroyage_habitats,
+  y = carroyage_final %>% select(id_hex, geometry),
+  x = carroyage_habitats,
   by = join_by(id_hex)
 )
 
@@ -163,6 +166,9 @@ carroyage_habitats <- left_join(
   by = join_by(talassa_code)
 )
 
+# Finalisation données format final ----
+
+## Réagencement et noms ----
 # Changements noms et réagencement colonnes pour correspondance exacte format modélo
 carroyage_habitats_final <- carroyage_habitats %>%
   rename(
@@ -185,7 +191,20 @@ carroyage_final <- carroyage_final %>%
     surf_cel = aire_maille, 
     surf_ter = aire_terre, 
     surfmer = aire_mer,
-  )
+  ) %>%
+  relocate(surf_ter, .after = surf_cel)
+
+## Changement unités aires m2 vers km2 sauf pour surfhab_cel ----
+carroyage_habitats_final <- carroyage_habitats_final %>%
+  mutate(across(c(surf_cel, surf_ter, surfmer), \(x) {as.numeric(x) * 10^-6}))
+
+carroyage_final <- carroyage_final %>%
+  mutate(across(c(surf_cel, surf_ter, surfmer), \(x) {as.numeric(x) * 10^-6}))
+
+## Ajout colonne zone carroyage ----
+carroyage_final <- carroyage_final %>%
+  mutate(zone = NA) %>%
+  relocate(geometry, .after = last_col())
 
 # Exports ----
 

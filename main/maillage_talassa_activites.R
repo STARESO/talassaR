@@ -351,6 +351,15 @@ agregation_hex2 <- agregation_hex2 %>%
 agregation_hex2 <- agregation_hex2 %>%
   rename_with(~ "id2", starts_with("id"))
 
+
+# Liste combinaisons ----
+
+# Liste des combinaisons talassa_code et talassa_intitule final post-transfos
+# pour un export simple à insérer dans le fichier de paramétrage
+liste_combinaisons <- agregation_carroyage %>%
+  select(talassa_code, talassa_intitule) %>%
+  distinct()
+
 # Exports ----
 st_write(
   obj = agregation_hex,
@@ -364,4 +373,9 @@ st_write(
   dsn = paths$processed_hex_activites_intitule,
   driver = "gpkg",
   append = FALSE
+)
+
+write.xlsx(
+  x = liste_combinaisons, 
+  file = paths$processed_params_combinaisons
 )

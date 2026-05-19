@@ -93,8 +93,6 @@ marinetraffic_list<- list.files(paths$raw_ais_marinetraffic)
 length(marinetraffic_list)
 
 
-
-
 test <- bind_ais(marinetraffic_list[1:200])
 
 test <- read_section(marinetraffic_list[1])

@@ -39,7 +39,7 @@ habitats_talassa <- st_read(paths$processed_tal_habitats_intermediaire) # Versio
 grottes_talassa <- st_read(paths$processed_tal_grottes)
 
 # Carroyage
-carroyage_hex <- st_read(paths$raw_carroyage_final) %>%
+carroyage_hex <- st_read(paths$raw_carroyage_hexcinquieme) %>%
   st_transform(., crs = 4326)
 
 # Côte Corse
@@ -122,7 +122,6 @@ st_crs(habitats_talassa)$epsg # 2154
 
 # Calcul surface de chaque polygone habitat
 habitats_talassa <- habitats_talassa %>%
-  rename(geometry = geom) %>%
   mutate(aire_habitat = as.numeric(st_area(geometry)))
 
 # Calcul surface sommé de chaque type d'habitat par hexagone (par id_hex)

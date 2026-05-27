@@ -47,7 +47,7 @@ donia_talassa <- st_read(paths$processed_tal_donia)
 plongee_talassa <- st_read(paths$processed_tal_plongee)
 
 # Carroyages
-carroyage_hex <- st_read(paths$raw_carroyage_final) %>%
+carroyage_hex <- st_read(paths$raw_carroyage_hexcinquieme) %>%
   st_transform(., crs = 4326)
 
 # Precheck ----

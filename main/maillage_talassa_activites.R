@@ -51,6 +51,11 @@ carroyage_hex <- st_read(paths$raw_carroyage_final) %>%
   st_transform(., crs = 4326)
 
 # Precheck ----
+if ("geom" %in% names(carroyage_hex)) {
+  carroyage_hex <- carroyage_hex %>%
+    rename(geometry = geom)
+}
+
 names(survolus_talassa)
 names(peche_talassa)
 names(donia_talassa)

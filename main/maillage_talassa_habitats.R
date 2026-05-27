@@ -48,7 +48,19 @@ cote_corse <- st_read(paths$raw_corsica_borders)
 # Sensibilités aux pressions
 sensibilite <- readRDS(paths$processed_mat_sensibilites)
 
+
 # Precheck ----
+if ("geom" %in% names(carroyage_hex)) {
+  carroyage_hex <- carroyage_hex %>%
+    rename(geometry = geom)
+}
+
+if ("geom" %in% names(habitats_talassa)) {
+  habitats_talassa <- habitats_talassa %>%
+    rename(geometry = geom)
+}
+
+
 names(habitats_talassa)
 names(grottes_talassa)
 

@@ -58,7 +58,8 @@ with(paths_env, {
 
   # Carroyage
   raw_carroyage <- "data/raw/carroyage/zone_biocenoses/"
-  raw_carroyage_final <- "data/raw/carroyage/zone_biocenoses/grille_talassa_2025_cotier_hexagone_cinquiemedemile.shp"
+  raw_carroyage_final <- "data/raw/carroyage/zone_biocenoses/grille_talassa_2025_cotier_hexagone_cinquiemedemile.gpkg"
+  raw_carroyage_carpediem <- "data/raw/carroyage/zone_biocenoses/grille_carpediem_1m_2019_pnmcca_cotier.gpkg"
 
   ### Référentiels codes et intitulés ----
   raw_codes_survolusage <- "data/raw/codes/reference_codes_survolusages_resoblo.csv"

@@ -1,17 +1,17 @@
 #' ---
-#' title : "talassaR - correction_habitats"
+#' title : "talassaR - formatage_habitats"
 #' author : Aubin Woehrel
 #' creation date : 2026-02-06
 #' ---
 #'
 #' =============================================================================
 #'
-#' talassaR : Correction des habitats
+#' talassaR : Correction et formatage des habitats
 #'
 #' Description :
-#' Script de correction des couches habitats de biocénose d'andromède.
-#' Les corrections ont été réalisées principalement sur QGIS, mais ce script
-#' permet de faire les étapes suivantes en plus :
+#' Script de formataage et de correction des couches habitats de biocénose 
+#' d'andromède. Les corrections ont été réalisées principalement sur QGIS,
+#' mais ce script permet de faire les étapes suivantes en plus :
 #' 1) de vérifier la nomenclature des contenus de colonnes
 #' 2) de joindre les codes d'identification nathab OFB officiels des biocénoses
 #' 3) d'exporter les fichiers directement au format talassa et au format nathab
@@ -94,6 +94,18 @@ head(habitats)
 habitats <- habitats %>%
   select(-surfstat) %>%
   rename(surfstat = surfstat_better)
+
+# Elimination des habitats non concernés par le projet Talassa
+unique(habitats$talassa_intitule)
+l_init <- dim(habitats)[1]
+habitats <- habitats %>%
+  filter(!talassa_intitule %in% 
+  c("habitats artificiels", 
+  "rhodolithes", 
+  "zone bathyale"
+  ))
+l_post <- dim(habitats)[1]
+l_init - l_post # Nombre de polygones éliminés
 
 # Format nathab
 habitats_nathab <- habitats %>%

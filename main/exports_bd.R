@@ -54,10 +54,10 @@ config <- yaml.load_file("config.yml")
 
 con <- dbConnect(
   RPostgres::Postgres(),
-  dbname = config$db$dbname, 
+  dbname = config$db$dbname,
   host = config$db$host,
-  port = config$db$port, 
-  user = config$db$user, 
+  port = config$db$port,
+  user = config$db$user,
   password = config$db$password
 )
 
@@ -67,9 +67,9 @@ dbListTables(con)
 # Check présence postgis
 pgPostGIS(con) # Voir output pour statut installation
 
-# Attention, enregistrement des données dans la BD par écrasement ! 
+# Attention, enregistrement des données dans la BD par écrasement !
 overwrite <- TRUE # Flag d'écrasement des BD existantes
-schema_chosen <- "rec_hex_20260512" # Nom du schema choisi
+schema_chosen <- "source_hex" # Nom du schema choisi
 
 if (overwrite) {
 
@@ -83,7 +83,7 @@ if (overwrite) {
 
   # Activites
   dbWriteTable(
-    conn = con, 
+    conn = con,
     name = Id(schema = schema_chosen, table = "activites_intitules_hex"),
     value = talassa_activites_intitule,
     overwrite = TRUE
@@ -91,7 +91,7 @@ if (overwrite) {
 
   # Activites
   dbWriteTable(
-    conn = con, 
+    conn = con,
     name = Id(schema = schema_chosen, table = "habitats_hex"),
     value = talassa_habitats,
     overwrite = TRUE
@@ -99,7 +99,7 @@ if (overwrite) {
 
   # Activites
   dbWriteTable(
-    conn = con, 
+    conn = con,
     name = Id(schema = schema_chosen, table = "carroyage_hex"),
     value = talassa_carroyage,
     overwrite = TRUE

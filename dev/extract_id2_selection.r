@@ -2,7 +2,7 @@
 
 library("dplyr")
 
-smaller_selection <- sf::st_read("data/raw/dev/test_hex_small_format.gpkg")
+smaller_selection <- sf::st_read("data/raw/dev/test_hex_ouest.gpkg")
 names(smaller_selection)
 
 id_selection <- smaller_selection %>%
@@ -10,7 +10,8 @@ id_selection <- smaller_selection %>%
   sort() %>%
   unique()
 
-writeLines(
-  unlist(lapply(mylist, paste, collapse=" ")), 
-  "data/processed/dev/id_subselection.txt"
-  )
+cat(
+  paste(id_selection, collapse = ","),
+  file = "data/processed/dev/id_subselection.txt"
+)
+

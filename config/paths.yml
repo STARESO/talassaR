@@ -1,0 +1,113 @@
+# Chemins d'accès de préparation des données du projet talassaR
+
+raw:
+  # Survols
+  survols_plaba: "data/raw/survols/us_med_pnmcca_observatoire_survols_plaba.rds"
+  survols_usages: "data/raw/survols/us_med_pnmcca_observatoire_survols_usages.rds"
+
+  # Donia
+  donia: "data/raw/donia/donia.csv"
+
+  # Peche
+  peche_shp: "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.shp"
+  peche_gpkg: "data/raw/peche_recreative/peche_loisir_PNMCCA_2025.gpkg"
+  peche_quentin: "data/raw/peche_recreative/peche_loisir_PNMCCA_2025_traitement_Quentin.shp"
+  peche_clean: "data/raw/peche_recreative/us_med_pnmcca_observatoire_peche_loisir_ofb_pt_2020_2024.gpkg"
+
+  # Plongee
+  plongee_2023: "data/raw/plongee/Plongée_2023.shp"
+  plongee_2025: "data/raw/plongee/plongée_SIG_2025.csv"
+
+  # AIS
+  ais_vesselfinder: "data/raw/ais/ais_vessel_finder_2009-2024_pnmcca.gpkg"
+  ais_marinetraffic: "D:/Documents/work/stareso/etudes/talassa/data/source/donnees_talassa/ais/ais_marine_traffic_2025/"
+  ais_marinetraffic_mathilde: "data/raw/ais/data_mathilde_ais_2025.csv"
+
+  # Habitats
+  habitats_andromede: "data/raw/habitats/biocenoses_andromede_PNMCCA_2025_fixed_geometry_by_stareso.shp"
+  habitats_grottes: "data/raw/habitats/grottes.shp"
+
+  # Delimitations
+  pnmcca_borders: "data/raw/pnm/delimitation_pnmcca_2154.gpkg"
+  corsica_borders: "data/raw/pnm/histolitt_corse_region_4326.gpkg"
+
+  # Carroyages
+  carroyage: "data/raw/carroyage/zone_biocenoses/"
+  carroyage_hexcinquieme: "data/raw/carroyage/zone_biocenoses/grille_talassa_2025_cotier_hexagone_cinquiemedemile.gpkg"
+  carroyage_rect1mile: "data/raw/carroyage/zone_biocenoses/grille_carpediem_1m_2019_pnmcca_cotier.gpkg"
+
+  # Références carroyage
+  devcarroyage_activites: "data/raw/references_carroyage/reference_carroyage_activites_a_completer.xlsx"
+  devcarroyage_habitats: "data/raw/references_carroyage/reference_carroyage_habitats_a_completer.xlsx"
+  refcarroyage_activites: "data/raw/references_carroyage/reference_carroyage_activites.xlsx"
+  refcarroyage_habitats: "data/raw/references_carroyage/reference_carroyage_habitats.xlsx"
+  
+  # Codifications diverses (resoblo, talassa)
+  codes_survolusage: "data/raw/codes/reference_codes_survolusages_resoblo.csv"
+  codes_talassa: "data/raw/codes/reference_codes_resoblo_talassa.xlsx"
+  codes_peche: "data/raw/codes/reference_codes_peche_resoblo.csv"
+  codes_donia: "data/raw/codes/reference_codes_donia_resoblo.csv"
+  codes_ais_tocomplete: "data/raw/codes/reference_codes_ais_resoblo_acompleter.xlsx"
+  codes_ais: "data/raw/codes/reference_codes_ais_resoblo.xlsx"
+  codes_habitats: "data/raw/codes/reference_codes_habitats.xlsx"
+  codes_pressures: "data/raw/codes/reference_codes_pressures.xlsx"
+
+  # Matrice sensibilité
+  mat_sensibilite: "data/raw/matrices/matrice_sensibilite_habitats_format_lariviere.xlsx"
+
+  
+dev:
+  # AIS
+  ais_tempcompil: "data/processed/dev/ais/ais_mt_tempcompil.rds"
+  ais: "data/processed/dev/ais/"
+
+  # Survols
+  survols_codenom: "data/processed/dev/survols/survols_usages_code_vs_nom_a_completer.csv"
+  survols_errors: "data/processed/dev/survols/spatial/errors/"
+  survols_toverify: "data/processed/dev/survols/spatial/to_verify/"
+  survols_corrected: "data/processed/dev/survols/spatial/corrected/"
+  survols_hex: "data/processed/dev/survols/spatial/spatial_hex/"
+
+  # Donia
+  donia_type_navire: "data/processed/dev/donia/donia_type_navire.csv"
+  donia_hex: "data/processed/dev/donia/donia_hex/"
+  donia_rect: "data/processed/dev/donia/donia_rect/"
+
+
+processed:
+  # Matrices
+  mat_sensibilites: "data/processed/matrices/sensibilites.rds"
+
+  # Observatoire
+  observatoire_survolusage: "data/processed/observatoire/us_med_pnmcca_observatoire_survols_usages_ofb_pts_4326.gpkg"
+  observatoire_survolplaba: "data/processed/observatoire/us_med_pnmcca_observatoire_survols_plaba_ofb_pts_4326.gpkg"
+  observatoire_peche: "data/processed/observatoire/us_med_pnmcca_observatoire_peche_recreative_ofb_pts_4326.gpkg"
+  observatoire_donia: "data/processed/observatoire/us_med_pnmcca_observatoire_donia_ofb_pts_4326.gpkg"
+  observatoire_plongee: "data/processed/observatoire/us_med_pnmcca_observatoire_plongee_sites_ofb_pts_4326.gpkg"
+  observatoire_ais: "data/processed/observatoire/us_med_pnmcca_observatoire_ais_vesselfinder_pts_4326.gpkg"
+  observatoire_habitats: "data/processed/observatoire/eco_med_pnmcca_observatoire_habitats_andromede_pol_4326.gpkg"
+  observatoire_grottes: "data/processed/observatoire/eco_med_pnmcca_observatoire_grottes_ofb_pts_4326.gpkg"
+
+  # Données format Talassa
+  talassa_survolusage: "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_usages_ofb_pts_4326.gpkg"
+  talassa_survolplaba: "data/processed/talassa_pts/us_med_pnmcca_talassa_survols_plaba_ofb_pts_4326.gpkg"
+  talassa_peche: "data/processed/talassa_pts/us_med_pnmcca_talassa_peche_ofb_pts_4326.gpkg"
+  talassa_donia: "data/processed/talassa_pts/us_med_pnmcca_talassa_donia_ofb_pts_4326.gpkg"
+  talassa_plongee: "data/processed/talassa_pts/us_med_pnmcca_talassa_plongee_ofb_pts_4326.gpkg"
+  talassa_ais: "data/processed/talassa_pts/us_med_pnmcca_talassa_ais_vesselfinder_pts_4326.gpkg"
+  talassa_habitats: "data/processed/talassa_pts/eco_med_pnmcca_talassa_habitats_ofb_pol_4326.gpkg"
+  talassa_grottes: "data/processed/talassa_pts/eco_med_pnmcca_talassa_grottes_ofb_pts_4326.gpkg"
+  talassa_habitats_intermediaire: "data/processed/talassa_pts/talassa_habitats_decoupe_intermediaire_par_hexcinquieme.gpkg"
+  
+  # Données format Talassa maillage hexagonal
+  hex_activites: "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_ofb_pol_4326.gpkg"
+  hex_activites_intitule: "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_intitules_ofb_pol_4326.gpkg"
+  hex_habitats: "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_ofb_pol_4326.gpkg"
+  hex_habitats_m2: "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_wide_surface_ofb_pol_4326.gpkg"
+  hex_habitats_pct: "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_wide_pourcentage_ofb_pol_4326.gpkg"
+  hex_carroyage: "data/processed/talassa_hex/us_med_pnmcca_talassa_carroyage_ofb_pol_4326.gpkg"
+
+  # Données format Talassa maillage 
+
+  # Modélisation
+  params_combinaisons: "data/processed/params/talassa_liste_combinaisons_activites.xlsx"

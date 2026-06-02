@@ -16,8 +16,15 @@
 #'
 #' =============================================================================
 
+library("dplyr")
+library("purrr")
+library("furrr")
+library("progressr")
+library("tictoc")
+library("stringr")
 
-# Référence des colonnes à conserver ----
+
+# Colonnes de référence
 ref_columns <- c(
   "mmsi", "imo", "ship_id", "lat", "lon", "speed", "heading",
   "course", "status", "timestamp", "dsrc", "utc_seconds", "market", "shipname",
@@ -27,58 +34,148 @@ ref_columns <- c(
   "last_port_id", "last_port_unlocode", "last_port_country", "current_port",
   "current_port_id", "current_port_unlocode", "current_port_country", "next_port_id",
   "next_port_unlocode", "next_port_name", "next_port_country", "eta_calc",
-  "eta_updated", "distance_to_go", "distance_travelled", "avg_speed", "max_speed", 
+  "eta_updated", "distance_to_go", "distance_travelled", "avg_speed", "max_speed",
   "date_from", "date_to"
 )
 
-# Fonction permettant de lire un fichier unique (section temporelle) de données ais ----
-read_section <- function(json_name) {
-  path_json <- paste0(paths$raw_ais_marinetraffic, "/", json_name)
-  data_json <- rjson::fromJSON(file = path_json)
+json_to_df <- function(json_name) {
+  path_json <- file.path(paths$raw$ais_marinetraffic, json_name)
 
-  if(!is.null(data_json$errors)) {
-    return("base_file_error")
-  } 
+  data_json <- tryCatch(
+    rjson::fromJSON(file = path_json),
+    error = function(e) return(NULL)  # Return NULL if JSON reading fails
+  )
 
-  data_framed <- as.data.frame(do.call(rbind, data_json$DATA)) %>%
-    mutate(
-    date_from = data_json$METADATA$DATE_FROM, 
-    date_to = data_json$METADATA$DATE_TO
-  ) %>%
-  rename_with(stringr::str_to_lower) 
-
-  if (length(names(data_framed)) != length(ref_columns)) {
-    return("different_column_amount")
+  if (!is.null(data_json$errors)) {
+    return(NULL)  # Return NULL if JSON has errors
   }
-  
-  if (sum(names(data_framed) != ref_columns) > 0) {
-    return("wrong_column_names")
-  } 
 
-  data_framed <- data_framed %>%
-    relocate(date_from, date_to, .before = mmsi)
+  if (is.null(data_json$DATA) || length(data_json$DATA) == 0) {
+    return("no_data")
+  }
+
+  data_framed <- tryCatch(
+    {
+      as.data.frame(bind_rows(data_json$DATA)) %>%
+        mutate(
+          date_from = data_json$METADATA$DATE_FROM,
+          date_to = data_json$METADATA$DATE_TO
+        ) %>%
+        rename_with(str_to_lower)
+    },
+    error = function(e) return(NULL)  # Return NULL if conversion fails
+  )
+
+  return(data_framed)  # Return the data frame (or NULL if failed)
 }
 
 
-# Fonction compilation ais au format dataframe ----
-bind_ais <- function(json_names) {
-  temp_list <- data.frame() # Initialisation jeu de données nul
-  error_list <- NULL # Liste des erreurs à renvoyer
+read_section <- function(json_name) {
+  data_framed <- json_to_df(json_name)
 
-  for(i in 1:length(json_names)) { # Boucle sur les fichiers ais individuels
-    print(paste(i, ":", json_names[i])) 
+  # Initialize warnings as NULL (no warnings by default)
+  warnings <- NULL
 
-    # Extraction données
-    data_temp <- read_section(json_names[i])
+  # Skip if data_framed is NULL (error in json_to_df)
+  if (is.null(data_framed)) {
+    warnings <- paste(json_name,  ": failed to read or convert")
+    return(list(data = NULL, warnings = warnings))
+  }
 
-    # Rajout à liste erreur si présente, sinon concaténation lignes
-    if (is.character(data_temp)) {
-      print(data_temp)
-      error_list <- c(error_list, paste(json_names[i], ":", data_temp))
-    } else {
-      temp_list <- rbind(temp_list, data_temp)
+  if (is.character(data_framed) && data_framed == "no_data") {
+    warnings <- paste(json_name,  ": no existing data")
+    return(list(data = NULL, warnings = warnings))
+  }
+
+  # Check for column mismatches and record warnings
+  # if (length(names(data_framed)) != length(ref_columns)) {
+  #   # warnings <- append(warnings, paste("Column count mismatch in", json_name, ":", length(names(data_framed)), "vs reference", length(ref_columns)))
+  # }
+
+  if (!all(names(data_framed) %in% ref_columns)) {
+    missing_cols <- setdiff(ref_columns, names(data_framed))
+    extra_cols <- setdiff(names(data_framed), ref_columns)
+    if (length(missing_cols) > 0) {
+      warnings <- append(warnings, paste(json_name, ": missing columns", paste(missing_cols, collapse = ", ")))
+    }
+    if (length(extra_cols) > 0) {
+      warnings <- append(warnings, paste(json_name, ": extra columns", paste(extra_cols, collapse = ", ")))
     }
   }
 
-  return(list(data = temp_list, errors = error_list))
+  # Return the data frame and warnings
+  return(list(data = data_framed, warnings = warnings))
+}
+
+
+bind_ais <- function(json_names) {
+  tic()
+  with_progress({
+    p <- progressor(steps = length(json_names))
+
+    # Process files sequentially
+    results <- map(
+      json_names,
+      ~ {
+        p()  # Update progress bar
+        read_section(.x)  # Returns list(data = df, warnings = character_vector)
+      }
+    )
+
+    # Separate data and warnings
+    data_list <- map(results, ~ .x$data)  # Extract data frames
+    warnings_list <- map(results, ~ .x$warnings)  # Extract warnings
+
+    # Combine data (skip NULL entries)
+    data <- bind_rows(compact(data_list))
+
+    # Combine warnings (flatten and remove NULLs)
+    all_warnings <- unlist(compact(warnings_list))
+  })
+
+  elapsed <- toc()
+
+  return(list(
+    data = data,
+    warnings = all_warnings,  # Return warnings instead of errors
+    computation_time = elapsed$callback_msg
+  ))
+}
+
+
+bind_ais_parallel <- function(json_names, workers = 10) {
+  tic()
+  # Enable parallel processing
+  plan(multisession, workers = workers)
+
+  with_progress({
+    p <- progressor(steps = length(json_names))
+
+    # Process files in parallel
+    results <- future_map(
+      json_names,
+      ~ {
+        p()  # Update progress bar
+        read_section(.x)  # Returns list(data = df, warnings = character_vector)
+      }
+    )
+
+    # Separate data and warnings
+    data_list <- map(results, ~ .x$data)  # Extract data frames
+    warnings_list <- map(results, ~ .x$warnings)  # Extract warnings
+
+    # Combine data (skip NULL entries)
+    data <- bind_rows(compact(data_list))
+
+    # Combine warnings (flatten and remove NULLs)
+    all_warnings <- unlist(compact(warnings_list))
+  })
+
+  elapsed <- toc()
+
+  return(list(
+    data = data,
+    warnings = all_warnings,  # Return warnings instead of errors
+    computation_time = elapsed$callback_msg
+  ))
 }

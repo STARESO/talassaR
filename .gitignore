@@ -6,3 +6,4 @@ config.yml
 /data/
 /output/
 .positai
+config/secrets.yml

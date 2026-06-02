@@ -37,16 +37,16 @@ library("leaflet")
 library("rlang")
 
 ## Ressources locales ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 
 ## Import des données ----
 
 # Données source plongée
-plongee_2023 <- st_read(paths$raw_plongee_2023)
-plongee_2025 <- read.csv2(paths$raw_plongee_2025)
+plongee_2023 <- st_read(paths$raw$plongee_2023)
+plongee_2025 <- read.csv2(paths$raw$plongee_2025)
 
 # Délimitation spatiale du Parc
-pnm_borders <- st_read(paths$raw_pnmcca_borders) %>%
+pnm_borders <- st_read(paths$raw$pnmcca_borders) %>%
   sf::st_transform(crs = 4326) %>%
   dplyr::filter(NOM_SITE == "cap Corse et Agriate")
 
@@ -152,7 +152,7 @@ map_optimized
 # Export ----
 st_write(
   obj = plongee_spatial_2025,
-  dsn = paths$processed_obs_plongee,
+  dsn = paths$processed$observatoire_plongee,
   driver = "GPKG",
   append = FALSE
 )

@@ -42,7 +42,7 @@ library("leaflet")
 library("rlang")
 
 ## Ressources locales ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 source("r/fct_category_map.R") # Fonction personnalisée carto R
 
 
@@ -50,19 +50,19 @@ source("r/fct_category_map.R") # Fonction personnalisée carto R
 
 # Donia
 donia <- read_delim(
-  paths$raw_donia,
+  paths$raw$donia,
   delim = ";",
   escape_double = FALSE,
   trim_ws = TRUE
 )
 
 # Délimitation PNMCCA
-pnm_borders <- sf::st_read(paths$raw_pnmcca_borders) %>%
+pnm_borders <- sf::st_read(paths$raw$pnmcca_borders) %>%
   sf::st_transform(crs = 4326) %>%
   dplyr::filter(NOM_SITE == "cap Corse et Agriate")
 
 # Liens codes Resoblo - Donia
-donia_resoblo <- read.csv2(paths$raw_codes_donia) %>%
+donia_resoblo <- read.csv2(paths$raw$codes_donia) %>%
   select(-type_navire)
 
 
@@ -128,7 +128,7 @@ type_navire <- donia %>%
   arrange(desc(type_navire), desc(n))
 
 # Sauvegarde csv types navires -> pour création reférence resoblo-donia
-write.csv2(type_navire, paths$processed_donia_type_navire)
+write.csv2(type_navire, paths$dev$donia_type_navire)
 
 # Nombre de navires avec vs sans type défini
 type_unknown <- type_navire %>%
@@ -332,7 +332,7 @@ donia_spatial <- st_as_sf(donia, coords = c("lon_x", "lat_y"), crs = 4326)
 # Export format gpkg
 st_write(
   obj = donia_spatial,
-  dsn = paste0(paths$processed_obs_donia),
+  dsn = paths$processed$observatoire_donia,
   driver = "GPKG",
   append = FALSE
 )

@@ -29,10 +29,10 @@ library("tidyr")
 library("sf")
 
 ## Ressources locales ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 
 ## Import des données ----
-survols_usages <- readRDS(paths$raw_survols_usages)
+survols_usages <- readRDS(paths$raw$survols_usages)
 
 # Code vs intitule verifications ----
 
@@ -57,13 +57,13 @@ code_vs_nom_byyear <- survols_usages %>%
 # Ecriture csv à corriger/completer
 output_ref <- TRUE
 if (output_ref) {
-  write.csv2(code_vs_nom, paths$processed_survols_codenom)
+  write.csv2(code_vs_nom, paths$processed$survols_codenom)
 }
 
 # Import du csv des nouvelles associations et description erreurs
 input_ref <- TRUE
 if (input_ref) {
-  survols_resoblo <- read.csv(paths$raw_codes_survolusage, sep = ";")
+  survols_resoblo <- read.csv(paths$raw$codes_survolusage, sep = ";")
 }
 
 # Jointure données avec description erreurs ----
@@ -129,8 +129,8 @@ unique_years <- unique(spatial_usages$annee)
 # Boucle sur les années
 for (year in unique_years) {
   # Dossiers pour les années
-  folder_toverify <- file.path(paths$processed_survols_toverify, year, fsep = "")
-  folder_errors <- file.path(paths$processed_survols_errors, year, fsep = "")
+  folder_toverify <- file.path(paths$processed$survols_toverify, year, fsep = "")
+  folder_errors <- file.path(paths$processed$survols_errors, year, fsep = "")
 
   if (!dir.exists(folder_toverify)) {
     dir.create(folder_toverify)

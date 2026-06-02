@@ -142,7 +142,7 @@ grid_out <- hex_cinquieme %>%
 
 st_write(
   obj = grid_out,
-  dsn = paste0(paths$processed_peche_hex, "us_med_pnmcca_talassa_pecheloisir_hexcinquieme_ofb_pol.gpkg"),
+  dsn = paste0(paths$processed$peche_hex, "us_med_pnmcca_talassa_pecheloisir_hexcinquieme_ofb_pol.gpkg"),
   layer = "hex_cinquieme_peche_all",
   delete_dsn = TRUE
 )
@@ -159,7 +159,7 @@ grid_out2 <- hex_cinquieme %>%
 
 st_write(
   obj = grid_out2,
-  dsn = paste0(paths$processed_peche_hex, "us_med_pnmcca_observatoire_pecheloisir_hexcinquieme_ofb_pol.gpkg"),
+  dsn = paste0(paths$processed$peche_hex, "us_med_pnmcca_observatoire_pecheloisir_hexcinquieme_ofb_pol.gpkg"),
   layer = "hex_cinquieme_peche_all",
   delete_dsn = TRUE
 )

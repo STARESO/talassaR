@@ -34,20 +34,20 @@ library("stringr")
 library("openxlsx")
 
 ## Ressources locales ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 
 ## Import des données ----
 
 # Matrice de sensibilité
 matrice_sensibilite <- read.xlsx(
-  xlsxFile = paths$raw_mat_sensibilite,
+  xlsxFile = paths$raw$mat_sensibilite,
   sheet = "sensibilite",
   fillMergedCells = TRUE
 )
 
 # Codes habitats
 codes_habitats <- read.xlsx(
-  xlsxFile = paths$raw_codes_habitats,
+  xlsxFile = paths$raw$codes_habitats,
   sheet = "codes",
   fillMergedCells = TRUE
 )
@@ -64,7 +64,7 @@ unique(matrice_sensibilite$talassa_intitule)
 
 # Codes de référence des pressions
 codes_pressions <- read.xlsx(
-  xlsxFile = paths$raw_codes_pressions, 
+  xlsxFile = paths$raw$codes_pressions, 
   sheet = "codes_pressions",
   fillMergedCells = TRUE
 )
@@ -136,4 +136,4 @@ sensibilite_wider <- sensibilite_wider %>%
   mutate(across(everything(), ~ ifelse(is.na(.), 99, .)))
 
 # Exports ----
-saveRDS(object = sensibilite_wider, file = paths$processed_mat_sensibilites)
+saveRDS(object = sensibilite_wider, file = paths$processed$mat_sensibilites)

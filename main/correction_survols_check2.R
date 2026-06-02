@@ -35,12 +35,12 @@ library("ggplot2")
 library("sf")
 
 ## Ressources locales ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 
 ## Import des données ----
 
 # liste des fichiers spatiaux corrigés
-file_names <- list.files(paths$processed_survols_corrected, full.names = TRUE)
+file_names <- list.files(paths$processed$survols_corrected, full.names = TRUE)
 
 # compilation des fichiers spatiaux corrigés
 survols_resoblo <- file_names %>%
@@ -101,7 +101,7 @@ survols_resoblo <- survols_resoblo %>%
 # Exporting final format spatial resoblo ----
 st_write(
   obj = survols_resoblo,
-  dsn = paths$processed_obs_survolusage,
+  dsn = paths$processed$obs_survolusage,
   driver = "GPKG",
   append = FALSE
 )

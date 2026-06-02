@@ -36,11 +36,11 @@ library("DBI")
 library("sf")
 
 ## Ressources locales ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 source("r/fct_ais_reading.R")
 
 # Test Vessel Finder ----
-ais_vf <- st_read(paths$raw_ais_vesselfinder) 
+ais_vf <- st_read(paths$raw$ais_vesselfinder) 
 
 #  Corrections initiales
 skimr::skim(ais_vf)
@@ -77,13 +77,13 @@ type_navire <- ais_vf %>%
   st_drop_geometry() %>%
   count(etat, type, classe)
 
-write.csv2(type_navire, paths$processed_ais_type_navire)
+write.csv2(type_navire, paths$dev$ais_type_navire)
 
 
 # Import données marine traffic
 
 # Liste des fichiers d'AIS
-marinetraffic_list<- list.files(paths$raw_ais_marinetraffic)
+marinetraffic_list<- list.files(paths$raw$ais_marinetraffic)
 length(marinetraffic_list)
 
 
@@ -119,7 +119,7 @@ dbListTables(con)
 
 
 # AIS marine traffic integration data Mathile
-ais_mt <- read.csv(paths$raw_ais_marinetraffic_mathilde)
+ais_mt <- read.csv(paths$raw$ais_marinetraffic_mathilde)
 dim(ais_mt)
 names(ais_mt)
 skimr::skim(ais_mt)

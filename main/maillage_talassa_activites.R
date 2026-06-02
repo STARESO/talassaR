@@ -34,20 +34,20 @@ library("openxlsx")
 library("sf")
 
 ## Ressources locales ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 source("r/fct_jointure_id.R")
 
 
 ## Import des données -----
 
 # Activités
-survolus_talassa <- st_read(paths$processed_tal_survolusage)
-peche_talassa <- st_read(paths$processed_tal_peche)
-donia_talassa <- st_read(paths$processed_tal_donia)
-plongee_talassa <- st_read(paths$processed_tal_plongee)
+survolus_talassa <- st_read(paths$processed$talassa_survolusage)
+peche_talassa <- st_read(paths$processed$talassa_peche)
+donia_talassa <- st_read(paths$processed$talassa_donia)
+plongee_talassa <- st_read(paths$processed$talassa_plongee)
 
 # Carroyages
-carroyage_hex <- st_read(paths$raw_carroyage_hexcinquieme) %>%
+carroyage_hex <- st_read(paths$raw$carroyage_hexcinquieme) %>%
   st_transform(., crs = 4326)
 
 # Precheck ----
@@ -103,18 +103,18 @@ all_codes %>%
   relocate(variables, .after = last_col()) %>%
   write.xlsx(
     x = .,
-    file = paths$raw_devcarroyage_activites,
+    file = paths$raw$devcarroyage_activites,
     sheetName = "ref"
   )
 
 # Permet de compléter manuellement l'excel avec les formules de calcul
 # d'agrégation et les intervalles de confiance pour la suite des étapes.
 # Reprendre la suite après complétion de la référence puis renomer selon
-# le chemin paths$raw_refcarroyage_activites
-paths$raw_refcarroyage_activites
+# le chemin paths$raw$refcarroyage_activites
+paths$raw$refcarroyage_activites
 
 formula_ref <- read.xlsx(
-  xlsxFile = paths$raw_refcarroyage_activites,
+  xlsxFile = paths$raw$refcarroyage_activites,
   sheet = "ref"
 )
 
@@ -368,19 +368,19 @@ liste_combinaisons <- agregation_carroyage %>%
 # Exports ----
 st_write(
   obj = agregation_hex,
-  dsn = paths$processed_hex_activites,
+  dsn = paths$processed$hex_activites,
   driver = "gpkg",
   append = FALSE
 )
 
 st_write(
   obj = agregation_hex2,
-  dsn = paths$processed_hex_activites_intitule,
+  dsn = paths$processed$hex_activites_intitule,
   driver = "gpkg",
   append = FALSE
 )
 
 write.xlsx(
   x = liste_combinaisons, 
-  file = paths$processed_params_combinaisons
+  file = paths$processed$params_combinaisons
 )

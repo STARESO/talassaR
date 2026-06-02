@@ -36,7 +36,7 @@ library("sf")
 library("leaflet")
 
 ## Ressources locales ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 source("r/fct_category_map.R") # Fonction personnalisée carto R
 source("r/fct_map_peche.R")
 
@@ -44,23 +44,23 @@ source("r/fct_map_peche.R")
 # Import des données ----
 
 # Peche de loisir (versions différentes des données sources)
-peche_loisir <- st_read(paths$raw_peche_shp) %>% st_transform(crs = 4326)
-peche_loisir_gpkg <- st_read(paths$raw_peche_gpkg) %>% st_transform(crs = 4326)
-peche_loisir_quentin <- st_read(paths$raw_peche_quentin) %>% st_transform(crs = 4326)
+peche_loisir <- st_read(paths$raw$peche_shp) %>% st_transform(crs = 4326)
+peche_loisir_gpkg <- st_read(paths$raw$peche_gpkg) %>% st_transform(crs = 4326)
+peche_loisir_quentin <- st_read(paths$raw$peche_quentin) %>% st_transform(crs = 4326)
 
 # Jeu de données nettoyé manuellement pour TALASSA
-peche_loisir_clean <- st_read(paths$raw_peche_clean) %>% st_transform(crs = 4326)
+peche_loisir_clean <- st_read(paths$raw$peche_clean) %>% st_transform(crs = 4326)
 
 # Données carroyage
-hex_cinquieme <- st_read(paste0(paths$raw_carroyage, "grille_talassa_2025_cotier_hexagone_cinquiemedemile.shp"))
+hex_cinquieme <- st_read(paste0(paths$raw$carroyage, "grille_talassa_2025_cotier_hexagone_cinquiemedemile.shp"))
 
 # Délimitation PNMCCA
-pnm_borders <- sf::st_read(paths$raw_pnmcca_borders) %>%
+pnm_borders <- sf::st_read(paths$raw$pnmcca_borders) %>%
   sf::st_transform(crs = 4326) %>%
   dplyr::filter(NOM_SITE == "cap Corse et Agriate")
 
 # Liens peche-RESOBLO
-codes_resoblo <- read.csv2(paths$raw_codes_peche)
+codes_resoblo <- read.csv2(paths$raw$codes_peche)
 
 # Investigation et modifs initiales ----
 
@@ -215,7 +215,7 @@ View(peche_resoblo)
 
 st_write(
   obj = peche_resoblo,
-  dsn = paths$processed_obs_peche,
+  dsn = paths$processed$observatoire_peche,
   driver = "gpkg",
   append = FALSE
 )

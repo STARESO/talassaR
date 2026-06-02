@@ -12,10 +12,10 @@
 #' =============================================================================
 
 
-habitats_interm <- st_read(paths$processed_tal_habitats_intermediaire)
+habitats_interm <- st_read(paths$processed$talassa_habitats_intermediaire)
 
 codes_habitats <- read.xlsx(
-  xlsxFile = paths$raw_codes_habitats,
+  xlsxFile = paths$raw$codes_habitats,
   sheet = "codes",
   fillMergedCells = TRUE
 )
@@ -41,7 +41,7 @@ habitats_interm %>%
 
 st_write(
   obj = habitats_interm, 
-  dsn = paths$processed_tal_habitats_intermediaire,
+  dsn = paths$processed$talassa_habitats_intermediaire,
   driver = "gpkg",
   append = FALSE
 )

@@ -42,27 +42,27 @@ library("leaflet")
 library("rlang")
 
 ## Ressources locales ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 source("r/fct_category_map.R")
 
 ## Import des données ----
 
 # Référence codes RESOBLO-TALASSA
 codes_talassa <- read.xlsx(
-  xlsxFile = paths$raw_codes_talassa,
+  xlsxFile = paths$raw$codes_talassa,
   sheet = "codes",
   fillMergedCells = TRUE,
   startRow = 2
 )
 
 # Activités format observatoire corrigé
-survolus_obs <- st_read(paths$processed_obs_survolusage)
-peche_obs <- st_read(paths$processed_obs_peche)
-donia_obs <- st_read(paths$processed_obs_donia)
-plongee_obs <- st_read(paths$processed_obs_plongee)
+survolus_obs <- st_read(paths$processed$obs_survolusage)
+peche_obs <- st_read(paths$processed$obs_peche)
+donia_obs <- st_read(paths$processed$obs_donia)
+plongee_obs <- st_read(paths$processed$obs_plongee)
 
 # Délimitation PNMCCA
-pnm_borders <- sf::st_read(paths$raw_pnmcca_borders) %>%
+pnm_borders <- sf::st_read(paths$raw$pnmcca_borders) %>%
   sf::st_transform(crs = 4326) %>%
   dplyr::filter(NOM_SITE == "cap Corse et Agriate")
 
@@ -351,7 +351,7 @@ donia_talassa <- donia_talassa %>%
 # Survols usages
 st_write(
   obj = survolus_talassa,
-  dsn = paths$processed_tal_survolusage,
+  dsn = paths$processed$talassa_survolusage,
   driver = "GPKG",
   append = FALSE
 )
@@ -359,7 +359,7 @@ st_write(
 # Peche de loisir
 st_write(
   obj = peche_talassa,
-  dsn = paths$processed_tal_peche,
+  dsn = paths$processed$talassa_peche,
   driver = "GPKG",
   append = FALSE
 )
@@ -367,7 +367,7 @@ st_write(
 # Sites plongée
 st_write(
   obj = plongee_talassa,
-  dsn = paths$processed_tal_plongee,
+  dsn = paths$processed$talassa_plongee,
   driver = "GPKG",
   append = FALSE
 )
@@ -375,7 +375,7 @@ st_write(
 # Donia
 st_write(
   obj = donia_talassa,
-  dsn = paths$processed_tal_donia,
+  dsn = paths$processed$talassa_donia,
   driver = "gpkg",
   append = FALSE
 )

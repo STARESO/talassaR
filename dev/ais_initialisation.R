@@ -29,7 +29,7 @@ library("rjson")
 library("DBI")
 
 # Ressources locales 
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 source("r/fct_ais_reading.R")
 
 # Connection base de données locale
@@ -48,7 +48,7 @@ dbListTables(con)
 dbListObjects(con)
 
 # Creation liste simple 
-marinetraffic_list <- list.files(paths$raw_ais_marinetraffic)
+marinetraffic_list <- list.files(paths$raw$ais_marinetraffic)
 df_towrite <- read_section(marinetraffic_list[1])[0,]
 
 # Write the empty dataframe to PostgreSQL to create the table

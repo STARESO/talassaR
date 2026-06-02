@@ -40,20 +40,20 @@ library("ggplot2")
 library("sf")
 
 ## Sourcing local resources ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 
 
 # Import des données ----
 
 # Donnees ponctuelles survols
 survols_pts <- st_read(paste0(
-  paths$processed_survols_corrected,
+  paths$processed$survols_corrected,
   "us_med_pnmcca_observatoire_survols_usages_ofb_pt_4326.gpkg"
 ))
 
 # Donnees carroyage
 hex_cinquieme <- st_read(paste0(
-  paths$raw_carroyage,
+  paths$raw$carroyage,
   "grille_talassa_2025_cotier_hexagone_cinquiemedemile.shp"
 ))
 

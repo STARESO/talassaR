@@ -30,23 +30,23 @@ library("stringr")
 library("sf")
 
 ## Ressources locales ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 
 ## Import des données -----
 
 # Habitats
-habitats_talassa <- st_read(paths$processed_tal_habitats_intermediaire) # Version découpée sur mailles via QGIS
-grottes_talassa <- st_read(paths$processed_tal_grottes)
+habitats_talassa <- st_read(paths$processed$talassa_habitats_intermediaire) # Version découpée sur mailles via QGIS
+grottes_talassa <- st_read(paths$processed$talassa_grottes)
 
 # Carroyage
-carroyage_hex <- st_read(paths$raw_carroyage_hexcinquieme) %>%
+carroyage_hex <- st_read(paths$raw$carroyage_hexcinquieme) %>%
   st_transform(., crs = 4326)
 
 # Côte Corse
-cote_corse <- st_read(paths$raw_corsica_borders)
+cote_corse <- st_read(paths$raw$corsica_borders)
 
 # Sensibilités aux pressions
-sensibilite <- readRDS(paths$processed_mat_sensibilites)
+sensibilite <- readRDS(paths$processed$mat_sensibilites)
 
 
 # Precheck ----
@@ -222,7 +222,7 @@ carroyage_final <- carroyage_final %>%
 # Carroyage final
 st_write(
   obj = carroyage_final,
-  dsn = paths$processed_hex_carroyage,
+  dsn = paths$processed$hex_carroyage,
   driver = "gpkg",
   append = FALSE
 )
@@ -230,7 +230,7 @@ st_write(
 # Carroyage habitat format long
 st_write(
   obj = carroyage_habitats_final,
-  dsn = paths$processed_hex_habitats,
+  dsn = paths$processed$hex_habitats,
   driver = "gpkg",
   append = FALSE
 )

@@ -37,17 +37,17 @@ library("openxlsx")
 library("sf")
 
 ## Ressources locales ----
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
 
 
 ## Import des données -----
 
 # Habitats
-habitats <- st_read(paths$raw_habitats_andromede)
-grottes <- st_read(paths$raw_habitats_grottes)
+habitats <- st_read(paths$raw$habitats_andromede)
+grottes <- st_read(paths$raw$habitats_grottes)
 
 codes_habitats <- read.xlsx(
-  xlsxFile = paths$raw_codes_habitats,
+  xlsxFile = paths$raw$codes_habitats,
   sheet = "codes",
   fillMergedCells = TRUE
 )
@@ -150,7 +150,7 @@ grottes_talassa <- grottes %>%
 # Habitats nathab
 st_write(
   obj = habitats_nathab,
-  dsn = paths$processed_obs_habitats,
+  dsn = paths$processed$obs_habitats,
   driver = "gpkg",
   append = FALSE
 )
@@ -158,7 +158,7 @@ st_write(
 # Habitats talassa
 st_write(
   obj = habitats_talassa,
-  dsn = paths$processed_tal_habitats,
+  dsn = paths$processed$talassa_habitats,
   driver = "gpkg",
   append = FALSE
 )
@@ -166,7 +166,7 @@ st_write(
 # Grottes nathab
 st_write(
   obj = grottes_nathab,
-  dsn = paths$processed_obs_grottes,
+  dsn = paths$processed$obs_grottes,
   driver = "gpkg",
   append = FALSE
 )
@@ -174,7 +174,7 @@ st_write(
 # Grottes talassa
 st_write(
   obj = grottes_talassa,
-  dsn = paths$processed_tal_grottes,
+  dsn = paths$processed$talassa_grottes,
   driver = "gpkg",
   append = FALSE
 )

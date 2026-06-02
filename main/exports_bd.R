@@ -37,14 +37,14 @@ library("rpostgis")
 library("yaml")
 
 # Ressources locales projet
-source("r/paths.R")
+paths <- yaml::read_yaml("config/paths.yml")
  
 
 # Import des données R talassa traitées ----
-talassa_activites <- st_read(paths$processed_hex_activites)
-talassa_activites_intitule <- st_read(paths$processed_hex_activites_intitule)
-talassa_habitats <- st_read(paths$processed_hex_habitats)
-talassa_carroyage <- st_read(paths$processed_hex_carroyage)
+talassa_activites <- st_read(paths$processed$hex_activites)
+talassa_activites_intitule <- st_read(paths$processed$hex_activites_intitule)
+talassa_habitats <- st_read(paths$processed$hex_habitats)
+talassa_carroyage <- st_read(paths$processed$hex_carroyage)
 
 
 # Connection et exports BD ----

@@ -42,7 +42,7 @@ raw:
   refcarroyage_activites: "data/raw/references_carroyage/reference_carroyage_activites.xlsx"
   refcarroyage_habitats: "data/raw/references_carroyage/reference_carroyage_habitats.xlsx"
   
-  # Codifications diverses (resoblo, talassa)
+  # Codifications diverses (resoblo, talassa, nathab)
   codes_survolusage: "data/raw/codes/reference_codes_survolusages_resoblo.csv"
   codes_talassa: "data/raw/codes/reference_codes_resoblo_talassa.xlsx"
   codes_peche: "data/raw/codes/reference_codes_peche_resoblo.csv"
@@ -100,14 +100,20 @@ processed:
   talassa_habitats_intermediaire: "data/processed/talassa_pts/talassa_habitats_decoupe_intermediaire_par_hexcinquieme.gpkg"
   
   # Données format Talassa maillage hexagonal
-  hex_activites: "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_ofb_pol_4326.gpkg"
-  hex_activites_intitule: "data/processed/talassa_hex/us_med_pnmcca_talassa_activites_intitules_ofb_pol_4326.gpkg"
-  hex_habitats: "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_ofb_pol_4326.gpkg"
-  hex_habitats_m2: "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_wide_surface_ofb_pol_4326.gpkg"
-  hex_habitats_pct: "data/processed/talassa_hex/us_med_pnmcca_talassa_habitats_wide_pourcentage_ofb_pol_4326.gpkg"
-  hex_carroyage: "data/processed/talassa_hex/us_med_pnmcca_talassa_carroyage_ofb_pol_4326.gpkg"
+  hex_activites: "data/processed/talassa_hex/us_med_pnmcca_talassa_hex_activites_ofb_pol_4326.gpkg"
+  hex_activites_intitule: "data/processed/talassa_hex/us_med_pnmcca_talassa_hex_activites_intitules_ofb_pol_4326.gpkg"
+  hex_habitats: "data/processed/talassa_hex/us_med_pnmcca_talassa_hex_habitats_ofb_pol_4326.gpkg"
+  hex_habitats_m2: "data/processed/talassa_hex/us_med_pnmcca_talassa_hex_habitats_wide_surface_ofb_pol_4326.gpkg"
+  hex_habitats_pct: "data/processed/talassa_hex/us_med_pnmcca_talassa_hex_habitats_wide_pourcentage_ofb_pol_4326.gpkg"
+  hex_carroyage: "data/processed/talassa_hex/us_med_pnmcca_talassa_hex_carroyage_ofb_pol_4326.gpkg"
 
-  # Données format Talassa maillage 
+  # Données format Talassa maillage arp
+  arp_activites: "data/processed/talassa_arp/us_med_pnmcca_talassa_arp_activites_ofb_pol_4326.gpkg"
+  arp_activites_intitule: "data/processed/talassa_arp/us_med_pnmcca_talassa_arp_activites_intitules_ofb_pol_4326.gpkg"
+  arp_habitats: "data/processed/talassa_arp/us_med_pnmcca_talassa_arp_habitats_ofb_pol_4326.gpkg"
+  arp_habitats_m2: "data/processed/talassa_arp/us_med_pnmcca_talassa_arp_habitats_wide_surface_ofb_pol_4326.gpkg"
+  arp_habitats_pct: "data/processed/talassa_arp/us_med_pnmcca_talassa_arp_habitats_wide_pourcentage_ofb_pol_4326.gpkg"
+  arp_carroyage: "data/processed/talassa_arp/us_med_pnmcca_talassa_arp_carroyage_ofb_pol_4326.gpkg"
 
   # Modélisation
   params_combinaisons: "data/processed/params/talassa_liste_combinaisons_activites.xlsx"

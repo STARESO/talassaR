@@ -36,6 +36,7 @@ library("sf")
 ## Ressources locales ----
 paths <- yaml::read_yaml("config/paths.yml")
 source("r/fct_jointure_id.R")
+source("r/fct_intensite_computation.R")
 
 
 ## Import des données -----
@@ -45,6 +46,7 @@ survolus_talassa <- st_read(paths$processed$talassa_survolusage)
 peche_talassa <- st_read(paths$processed$talassa_peche)
 donia_talassa <- st_read(paths$processed$talassa_donia)
 plongee_talassa <- st_read(paths$processed$talassa_plongee)
+ais_talassa_grid <- st_read(paths$processed$talassa_ais_grid)
 
 # Carroyages
 carroyage_hex <- st_read(paths$raw$carroyage_hexcinquieme) %>%
@@ -60,33 +62,19 @@ names(survolus_talassa)
 names(peche_talassa)
 names(donia_talassa)
 names(plongee_talassa)
+names(ais_talassa_grid)
 
 # Liste des jeux de données et leurs noms
 data_list <- list(
   list(df = survolus_talassa, source = "survol_usage"),
   list(df = peche_talassa, source = "peche"),
   list(df = donia_talassa, source = "donia"),
-  list(df = plongee_talassa, source = "plongee")
+  list(df = plongee_talassa, source = "plongee"), 
+  list(df = ais_talassa_grid, source = "ais")
 )
 
-# Fonction pour obtenir les uniques des variables par jeux de données
-process_df <- function(df, source) {
-  vars <- df %>%
-    st_drop_geometry() %>%
-    select(-contains("talassa")) %>%
-    names() %>%
-    str_flatten(collapse = ", ")
 
-  df %>%
-    st_drop_geometry() %>%
-    count(talassa_code, talassa_intitule) %>%
-    mutate(
-      source = source,
-      variables = vars
-    )
-}
-
-# Application de la fonction pour comparer les codes et variables à disposition
+# Comparaison codes et variables à disposition
 # dans l'intégralité des jeux de données à disposition
 all_codes <- data_list %>%
   map(~ process_df(.x$df, .x$source)) %>%
@@ -183,44 +171,6 @@ plongee_carroyage <- formula_ref %>%
     by = join_by(talassa_code)
   )
 
-# Fonction de calcul des intensités d'activités par maille et par activité
-intensite_computation <- function(
-  data,
-  type,
-  id_carroyage = "id_hex",
-  scale_min = 0.01,
-  scale_max = 1
-) {
-  # Calcul des poids par entités sur la base de formules et variables à disposition
-  data_new <- data %>%
-    rowwise() %>%
-    mutate(
-      cweight = ifelse(
-        is.na(formule),
-        1, # A verifier si ok dans toutes les situations
-        eval(parse(text = formule))
-      )
-    )
-
-  names(data_new)
-
-  # Calcul du niveau d'intensité basé sur les poids
-  data_new <- data_new %>%
-    # Somme par cellule et par activité
-    group_by(.data[[id_carroyage]], talassa_code, talassa_intitule) %>%
-    summarize(
-      intensite = sum(cweight),
-      ic = unique(ic) # Ici ou autre endroit plus adapté ?
-    ) %>%
-    # Réechelonnage par activité entre valeurs scale_min et scale_max
-    group_by(talassa_code, talassa_intitule) %>%
-    mutate(intensite = scales::rescale(intensite, to = c(scale_min, scale_max))) %>%
-    arrange(talassa_code, intensite)
-
-  # Ajout de la colonne type pour les étapes prochaines
-  data_new <- data_new %>%
-    mutate(type = type)
-}
 
 # Passage des temps de pêche depuis format caractères HMS vers difftime en secondes vers numérique
 peche_carroyage <- peche_carroyage %>%
@@ -231,17 +181,39 @@ peche_carroyage <- peche_carroyage %>%
     }
   ))
 
+
+# Finalisation préparation données AIS pour utilisation intensite_computation
+# Intégration données AIS déjà maillées dans le script maillage_talassa_ais.R
+ais_carroyage <- ais_talassa_grid %>%
+  st_drop_geometry() %>%
+  select(id_hex, talassa_code, talassa_intitule, activity_value)
+
+# Liste ref données ais (formume et ic)
+ais_formula_ref <- formula_ref %>%
+  filter(source == "ais") %>%
+  select(talassa_code, formule, ic)
+
+# Jointure des ic et formule
+ais_carroyage <- left_join(
+  x = ais_carroyage,
+  y = ais_formula_ref,
+  by = "talassa_code"
+)
+
+# Calculs intensité par maille pour les principaux datasets
 survolus_carroyage2 <- intensite_computation(data = survolus_carroyage, type = "survolus")
 peche_carroyage2 <- intensite_computation(data = peche_carroyage, type = "peche")
 donia_carroyage2 <- intensite_computation(data = donia_carroyage, type = "donia")
 plongee_carroyage2 <- intensite_computation(data = plongee_carroyage, type = "plongee")
+ais_carroyage2 <- intensite_computation(data = ais_carroyage, type = "ais")
 
 # Agregation d'intensité d'activité entre jeux de données ----
 agregation_carroyage <- rbind(
   survolus_carroyage2,
   peche_carroyage2,
   donia_carroyage2,
-  plongee_carroyage2
+  plongee_carroyage2, 
+  ais_carroyage2
 )
 
 # Check du nombre d'occurences avec 1 ou plus de 1 jeux de données pour une combinaison
@@ -251,7 +223,7 @@ nombre_agregations <- agregation_carroyage %>%
   ungroup() %>%
   count(nombre_jeux_données)
 
-View(nombre_agregations) # total de 188 hexagones avec combinaison de sources de données
+View(nombre_agregations) # 792 hexagones avec 2 sources et 178 avec 3 sources
 
 # Calcul moyenne intensité d'activité
 agregation_carroyage <- agregation_carroyage %>%
@@ -295,7 +267,7 @@ agregation_wider <- agregation_longer %>%
     values_fill = 0
   )
 
-# Jointure spatiale ID activités - hexagones ----
+ Jointure spatiale ID activités - hexagones 
 
 # Jointure
 agregation_hex <- left_join(
@@ -337,7 +309,7 @@ agregation_wider2 <- agregation_longer2 %>%
     values_fill = 0
   )
 
-# Jointure spatiale ID activités - hexagones ----
+Jointure spatiale ID activités - hexagones 
 
 # Jointure
 agregation_hex2 <- left_join(

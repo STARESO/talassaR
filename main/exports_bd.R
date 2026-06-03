@@ -36,10 +36,12 @@ library("rpostgis")
 # Config file import
 library("yaml")
 
-# Ressources locales projet
+# Chemins
 paths <- yaml::read_yaml("config/paths.yml")
- 
 
+# Secrets de config connection db
+config <- yaml.load_file("config/secrets.yml")
+ 
 # Import des données R talassa traitées ----
 talassa_activites <- st_read(paths$processed$hex_activites)
 talassa_activites_intitule <- st_read(paths$processed$hex_activites_intitule)
@@ -48,10 +50,6 @@ talassa_carroyage <- st_read(paths$processed$hex_carroyage)
 
 
 # Connection et exports BD ----
-
-# Import fichier config contenant les paramètres de connection
-config <- yaml.load_file("config.yml")
-
 con <- dbConnect(
   RPostgres::Postgres(),
   dbname = config$db$dbname,

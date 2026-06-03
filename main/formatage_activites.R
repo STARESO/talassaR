@@ -56,10 +56,10 @@ codes_talassa <- read.xlsx(
 )
 
 # Activités format observatoire corrigé
-survolus_obs <- st_read(paths$processed$obs_survolusage)
-peche_obs <- st_read(paths$processed$obs_peche)
-donia_obs <- st_read(paths$processed$obs_donia)
-plongee_obs <- st_read(paths$processed$obs_plongee)
+survolus_obs <- st_read(paths$processed$observatoire_survolusage)
+peche_obs <- st_read(paths$processed$observatoire_peche)
+donia_obs <- st_read(paths$processed$observatoire_donia)
+plongee_obs <- st_read(paths$processed$observatoire_plongee)
 
 # Délimitation PNMCCA
 pnm_borders <- sf::st_read(paths$raw$pnmcca_borders) %>%
@@ -72,7 +72,6 @@ codes_talassa <- codes_talassa %>%
   select(-resoblo_precision_n0) %>%
   filter(!is.na(talassa_code))
 
-View(codes_talassa)
 
 # Création liens des codes en éliminant les potentielles répétitions
 # des codes TALASSA pour plusieurs codes RESOBLO détaillés
@@ -80,6 +79,9 @@ codes_liens <- codes_talassa %>%
   select(code_resoblo_plus_proche, talassa_code, talassa_intitule) %>%
   distinct() %>%
   filter(!is.na(code_resoblo_plus_proche))
+
+View(codes_liens)
+
 
 # Modification survols usages ----
 
@@ -274,6 +276,11 @@ peche_talassa <- peche_talassa %>%
     temps_pech,
     temps_pe_1
   )
+
+# Elimination entité aberrante sans temps de pêche (evite impact partie maillage)
+peche_talassa <- peche_talassa %>% 
+  filter(temps_pech != "00:00:00")
+
 
 # Modification donia ----
 

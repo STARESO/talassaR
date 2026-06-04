@@ -17,7 +17,7 @@
 intensite_computation <- function(
   data,
   type,
-  id_carroyage = "id_hex",
+  id_carroyage = "id2",
   scale_min = 0.01,
   scale_max = 1
 ) {

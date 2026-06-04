@@ -57,10 +57,14 @@ ancrage_code <- "recz_00_f00_a03"
 ancrage_intitule <- "ancrage"
 
 ## Chargement des données ----
-carroyage_hex <- st_read(paths$raw$carroyage_hexcinquieme, quiet = TRUE) %>%
-  st_transform(crs = 4326)
 
+# Carroyages 
+carroyage_hexcinquieme <- st_read(paths$raw$carroyage_hexcinquieme) %>% st_transform(crs = 4326)
+carroyage_arp <- st_read(paths$raw$carroyage_arp) %>% st_transform(crs = 4326)
+
+# Données talassa
 ais_talassa <- st_read(paths$processed$talassa_ais, quiet = TRUE)
+
 
 ## Calcul état de mouvement ----
 ais_movement <- compute_ais_movement_state(
@@ -85,12 +89,14 @@ ais_recoded <- recode_ais_activity_by_movement(
   ancrage_intitule = ancrage_intitule
 )
 
+# Check recodage des activités avec prise en compte mouvement
 check_recoding <- ais_recoded %>%
   st_drop_geometry() %>%
   count(talassa_code, talassa_code_final, talassa_intitule, talassa_intitule_final) %>%
   arrange(talassa_intitule_final, talassa_code)
 View(check_recoding)
 
+# Acceptation recodage avec mouvement
 ais_recoded <- ais_recoded %>%
   mutate(
     talassa_code = talassa_code_final,
@@ -99,47 +105,65 @@ ais_recoded <- ais_recoded %>%
   select(-talassa_code_final, -talassa_intitule_final)
 
 
-## Agrégation à la maille ----
-ais_grid <- aggregate_ais_to_grid(
+## Agrégation maille ----
+
+# Carroyage hexagonal un cinquieme
+ais_grid_hex5 <- aggregate_ais_to_grid(
   ais = ais_recoded,
-  carroyage = carroyage_hex,
+  carroyage = carroyage_hexcinquieme,
   id_name = "id_hex",
   activity_code_field = "talassa_code",
   activity_intitule_field = "talassa_intitule",
   value_method = value_method
 )
- 
-# Sauvegarde du résultat AIS en grille pour intégration ultérieure
-ais_grid <- ais_grid %>%
-  rename(id_hex = id)
-
-
-cat("\nNombre de combinaisons maille-activité :", nrow(ais_grid), "\n")
-
-## Résumé final ----
-if (exists("ais_grid")) {
-  cat("\nStructure du gridded output :\n")
-  print(glimpse(ais_grid))
-  
-  cat("\nActivités par code (top 15):\n")
-  print(ais_grid %>%
-    count(talassa_code, sort = TRUE) %>%
-    head(15))
-}
-
 
 # Version wide explorable sur qgis avec colonnes par activité : 
-ais_grid_wide <- ais_grid %>%
-  select(id_hex, talassa_intitule, activity_value, geom) %>%
+ais_grid_wide_hex5 <- ais_grid_hex5 %>%
+  select(id2, talassa_intitule, activity_value, geom) %>%
   pivot_wider(
     names_from = talassa_intitule, 
     values_from = activity_value
   )
 
+cat("\nNombre de combinaisons maille-activité :", nrow(ais_grid_hex5), "\n")
+
+if (exists("ais_grid")) {
+  cat("\nStructure du gridded output :\n")
+  print(glimpse(ais_grid_hex5))
+  
+  cat("\nActivités par code (top 15):\n")
+  print(ais_grid_hex5 %>%
+    count(talassa_code, sort = TRUE) %>%
+    head(15))
+}
+
+
+# Carroyage arp
+ais_grid_arp <- aggregate_ais_to_grid(
+  ais = ais_recoded,
+  carroyage = carroyage_arp,
+  id_name = "id2",
+  activity_code_field = "talassa_code",
+  activity_intitule_field = "talassa_intitule",
+  value_method = value_method
+)
+
+# Version wide explorable sur qgis avec colonnes par activité : 
+ais_grid_wide_arp <- ais_grid_arp %>%
+  select(id2, talassa_intitule, activity_value, geom) %>%
+  pivot_wider(
+    names_from = talassa_intitule, 
+    values_from = activity_value
+  )
+
+
+# Exports ----
+
+## Carroyage hexagonal 1/5 ème de miles ----
 # Version longue
 st_write(
-  obj = ais_grid,
-  dsn = paths$processed$talassa_ais_grid,
+  obj = ais_grid_hex5,
+  dsn = paths$processed$talassa_ais_grid_hex,
   driver = "GPKG",
   delete_dsn = TRUE,
   append = FALSE
@@ -147,12 +171,27 @@ st_write(
 
 # Version wide 
 st_write(
-  obj = ais_grid_wide,
-  dsn = paths$processed$talassa_ais_grid_wide,
+  obj = ais_grid_wide_hex5,
+  dsn = paths$processed$talassa_ais_grid_wide_hex,
   driver = "GPKG",
   delete_dsn = TRUE,
   append = FALSE
 )
 
-cat("\nAIS grid sauvegardé :", paths$processed$talassa_ais_grid, "\n")
+## Carroyage arp ----
 
+st_write(
+  obj = ais_grid_arp,
+  dsn = paths$processed$talassa_ais_grid_arp,
+  driver = "GPKG",
+  delete_dsn = TRUE,
+  append = FALSE
+)
+
+st_write(
+  obj = ais_grid_wide_arp,
+  dsn = paths$processed$talassa_ais_grid_wide_arp,
+  driver = "GPKG",
+  delete_dsn = TRUE,
+  append = FALSE
+)

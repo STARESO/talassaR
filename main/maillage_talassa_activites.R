@@ -38,69 +38,93 @@ paths <- yaml::read_yaml("config/paths.yml")
 source("r/fct_jointure_id.R")
 source("r/fct_intensite_computation.R")
 
+## Choix du type de carroyage pour faire tourner le script ----
+choice_carroyage <- "arp" # Choix voir condition if ci-dessous
 
 ## Import des données -----
 
-# Activités
+# Activités (données ponctuelles format talassa)
 survolus_talassa <- st_read(paths$processed$talassa_survolusage)
 peche_talassa <- st_read(paths$processed$talassa_peche)
 donia_talassa <- st_read(paths$processed$talassa_donia)
 plongee_talassa <- st_read(paths$processed$talassa_plongee)
-ais_talassa_grid <- st_read(paths$processed$talassa_ais_grid)
 
-# Carroyages
-carroyage_hex <- st_read(paths$raw$carroyage_hexcinquieme) %>%
-  st_transform(., crs = 4326)
+# Paramètres spécifique au maillage
+if (choice_carroyage == "hex5") { # Carroyage hexagonal cinquième de mile nautique
+  carroyage <- st_read(paths$raw$carroyage_hexcinquieme) %>% rename(id2 = "id_hex") # Carroyage
+  ais_talassa <- st_read(paths$processed$talassa_ais_grid_hex) # AIS
+  path_final <- paths$processed$hex_activites # Export activités version codes talassa
+  path_final_wider <- paths$processed$hex_activites_intitule # Export activités version intitules talassa
+
+} else if (choice_carroyage == "arp") { # Carroyage carré 1 mile nautique (modèle arp)
+  carroyage <- st_read(paths$raw$carroyage_arp)
+  ais_talassa <- st_read(paths$processed$talassa_ais_grid_arp)
+  path_final <- paths$processed$arp_activites # Export activités version codes talassa
+  path_final_wider <- paths$processed$arp_activites_intitule # Export activités version intitules talassa
+
+} else {
+  stop("Mauvais type de carroyage choisi. Choisir parmis ceux disponibles.")
+}
+
 
 # Precheck ----
-if ("geom" %in% names(carroyage_hex)) {
-  carroyage_hex <- carroyage_hex %>%
+if ("geom" %in% names(carroyage)) {
+  carroyage <- carroyage %>%
     rename(geometry = geom)
 }
+
+# Transformation crs carroyage vers 4326
+carroyage <- carroyage %>% 
+  st_transform(crs = 4326) %>%
+  select(id2, geometry)
 
 names(survolus_talassa)
 names(peche_talassa)
 names(donia_talassa)
 names(plongee_talassa)
-names(ais_talassa_grid)
+names(ais_talassa)
 
-# Liste des jeux de données et leurs noms
-data_list <- list(
-  list(df = survolus_talassa, source = "survol_usage"),
-  list(df = peche_talassa, source = "peche"),
-  list(df = donia_talassa, source = "donia"),
-  list(df = plongee_talassa, source = "plongee"), 
-  list(df = ais_talassa_grid, source = "ais")
-)
+write_codes_activites <- FALSE
 
-
-# Comparaison codes et variables à disposition
-# dans l'intégralité des jeux de données à disposition
-all_codes <- data_list %>%
-  map(~ process_df(.x$df, .x$source)) %>%
-  list_rbind() %>%
-  arrange(talassa_code)
-
-# Export des combinaisons de codes et jeux de données en format xlsx.
-all_codes %>%
-  select(-n) %>%
-  mutate(
-    formule = "inserer formule",
-    ic = "inserer interfalle de confiance"
-  ) %>%
-  relocate(variables, .after = last_col()) %>%
-  write.xlsx(
-    x = .,
-    file = paths$raw$devcarroyage_activites,
-    sheetName = "ref"
+if (write_codes_activites) {
+  # Liste des jeux de données et leurs noms
+  data_list <- list(
+    list(df = survolus_talassa, source = "survol_usage"),
+    list(df = peche_talassa, source = "peche"),
+    list(df = donia_talassa, source = "donia"),
+    list(df = plongee_talassa, source = "plongee"), 
+    list(df = ais_talassa, source = "ais")
   )
 
-# Permet de compléter manuellement l'excel avec les formules de calcul
-# d'agrégation et les intervalles de confiance pour la suite des étapes.
-# Reprendre la suite après complétion de la référence puis renomer selon
-# le chemin paths$raw$refcarroyage_activites
-paths$raw$refcarroyage_activites
+  # Comparaison codes et variables à disposition
+  # dans l'intégralité des jeux de données à disposition
+  all_codes <- data_list %>%
+    map(~ process_df(.x$df, .x$source)) %>%
+    list_rbind() %>%
+    arrange(talassa_code)
 
+  # Export des combinaisons de codes et jeux de données en format xlsx.
+  all_codes %>%
+    select(-n) %>%
+    mutate(
+      formule = "inserer formule",
+      ic = "inserer interfalle de confiance"
+    ) %>%
+    relocate(variables, .after = last_col()) %>%
+    write.xlsx(
+      x = .,
+      file = paths$raw$devcarroyage_activites,
+      sheetName = "ref"
+    )
+
+  # Permet de compléter manuellement l'excel avec les formules de calcul
+  # d'agrégation et les intervalles de confiance pour la suite des étapes.
+  # Reprendre la suite après complétion de la référence puis renomer selon
+  # le chemin paths$raw$refcarroyage_activites
+}
+
+
+# Lecture formula ref à jour
 formula_ref <- read.xlsx(
   xlsxFile = paths$raw$refcarroyage_activites,
   sheet = "ref"
@@ -111,7 +135,7 @@ formula_ref <- read.xlsx(
 # Jointure avec fonction personnalisée jointure_id (cf fct_jointure_id.R)
 resultats_carroyage <- map(
   .x = list(survolus_talassa, peche_talassa, donia_talassa, plongee_talassa),
-  .f = ~ jointure_id(carroyage = carroyage_hex, data = .x, id_name = "id_hex")
+  .f = ~ jointure_id(carroyage = carroyage, data = .x, id_name = "id2")
 )
 
 # Reassignation (format liste sortie map vers jeux de données)
@@ -171,7 +195,6 @@ plongee_carroyage <- formula_ref %>%
     by = join_by(talassa_code)
   )
 
-
 # Passage des temps de pêche depuis format caractères HMS vers difftime en secondes vers numérique
 peche_carroyage <- peche_carroyage %>%
   mutate(across(
@@ -184,9 +207,9 @@ peche_carroyage <- peche_carroyage %>%
 
 # Finalisation préparation données AIS pour utilisation intensite_computation
 # Intégration données AIS déjà maillées dans le script maillage_talassa_ais.R
-ais_carroyage <- ais_talassa_grid %>%
+ais_carroyage <- ais_talassa %>%
   st_drop_geometry() %>%
-  select(id_hex, talassa_code, talassa_intitule, activity_value)
+  select(id2, talassa_code, talassa_intitule, activity_value)
 
 # Liste ref données ais (formume et ic)
 ais_formula_ref <- formula_ref %>%
@@ -219,15 +242,15 @@ agregation_carroyage <- rbind(
 # Check du nombre d'occurences avec 1 ou plus de 1 jeux de données pour une combinaison
 # activité-id_carroyage
 nombre_agregations <- agregation_carroyage %>%
-  count(id_hex, talassa_code, name = "nombre_jeux_données") %>%
+  count(id2, talassa_code, name = "nombre_jeux_données") %>%
   ungroup() %>%
   count(nombre_jeux_données)
 
-View(nombre_agregations) # 792 hexagones avec 2 sources et 178 avec 3 sources
+nombre_agregations # 792 hexagones avec 2 sources et 178 avec 3 sources
 
 # Calcul moyenne intensité d'activité
 agregation_carroyage <- agregation_carroyage %>%
-  group_by(id_hex, talassa_code, talassa_intitule) %>%
+  group_by(id2, talassa_code, talassa_intitule) %>%
   summarize(
     intensite = mean(intensite),
     ic = min(ic) # IC pris comme le minimum de l'IC
@@ -235,19 +258,19 @@ agregation_carroyage <- agregation_carroyage %>%
 
 # Verification nombre agregations
 nombre_agregations <- agregation_carroyage %>%
-  count(id_hex, talassa_code, name = "nombre_jeux_données") %>%
+  count(id2, talassa_code, name = "nombre_jeux_données") %>%
   ungroup() %>%
   count(nombre_jeux_données)
 
-View(nombre_agregations) # Ok : 1 valeur uniquement par combinaison activité-id_carroyage
+nombre_agregations # Ok : 1 valeur uniquement par combinaison activité-id_carroyage
 
 # Organisation par codes talassa
 agregation_carroyage <- agregation_carroyage %>%
-  arrange(talassa_code, id_hex) %>%
+  arrange(talassa_code, id2) %>%
   ungroup()
 
 
-## Version noms de colonnes -> codes talassa ----
+# Version noms de colonnes -> codes talassa ----
 
 # Passage au format large (colonnes par code activité)
 agregation_longer <- agregation_carroyage %>%
@@ -258,7 +281,7 @@ agregation_longer <- agregation_carroyage %>%
     TRUE ~ paste0(talassa_code, "_iq") # code_talassa + ic
   )) %>%
   select(-talassa_code) %>%
-  arrange(name, id_hex)
+  arrange(name, id2)
 
 agregation_wider <- agregation_longer %>%
   pivot_wider(
@@ -267,30 +290,23 @@ agregation_wider <- agregation_longer %>%
     values_fill = 0
   )
 
- Jointure spatiale ID activités - hexagones 
-
-# Jointure
-agregation_hex <- left_join(
-  x = carroyage_hex,
+# Jointure spatiale ID activités - hexagones 
+agregation_final_codes <- left_join(
+  x = carroyage,
   y = agregation_wider,
-  by = join_by(id_hex)
+  by = join_by(id2)
 )
 
 # Transfo format final
-agregation_hex <- agregation_hex %>%
-  select(-c(left, top, right, bottom)) %>%
-  mutate(across(-c(geometry, id_hex), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
+agregation_final_codes <- agregation_final_codes %>%
+  mutate(across(-c(geometry, id2), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
   st_as_sf()
 
-# Changement nom de la colonne d'id vers id2 (nomenclature modèle)
-agregation_hex <- agregation_hex %>%
-  rename_with(~ "id2", starts_with("id"))
 
-
-## Version noms de colonnes -> intituleés talassa ----
+# Version noms de colonnes -> intituleés talassa ----
 
 # Passage au format large (colonnes par code activité)
-agregation_longer2 <- agregation_carroyage %>%
+agregation_longer_intitule <- agregation_carroyage %>%
   select(-talassa_code) %>%
   mutate(talassa_intitule = str_replace_all(talassa_intitule, " ", "_")) %>%
   pivot_longer(cols = c(intensite, ic)) %>%
@@ -299,60 +315,66 @@ agregation_longer2 <- agregation_carroyage %>%
     TRUE ~ paste0(talassa_intitule, "_iq") # code_talassa + ic
   )) %>%
   select(-talassa_intitule) %>%
-  arrange(name, id_hex)
+  arrange(name, id2)
 
 
-agregation_wider2 <- agregation_longer2 %>%
+agregation_wider_intitule <- agregation_longer_intitule %>%
   pivot_wider(
     names_from = name,
     values_from = value,
     values_fill = 0
   )
 
-Jointure spatiale ID activités - hexagones 
+# Jointure spatiale ID activités - hexagones 
 
 # Jointure
-agregation_hex2 <- left_join(
-  x = carroyage_hex,
-  y = agregation_wider2,
-  by = join_by(id_hex)
+agregation_finale_intitules <- left_join(
+  x = carroyage,
+  y = agregation_wider_intitule,
+  by = join_by(id2)
 )
 
 # Transfo format final
-agregation_hex2 <- agregation_hex2 %>%
-  select(-c(left, top, right, bottom)) %>%
-  mutate(across(-c(geometry, id_hex), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
+agregation_final_intitules <- agregation_finale_intitules %>%
+  mutate(across(-c(geometry, id2), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
   st_as_sf()
-
-# Changement nom de la colonne d'id vers id2 (nomenclature modèle)
-agregation_hex2 <- agregation_hex2 %>%
-  rename_with(~ "id2", starts_with("id"))
 
 
 # Liste combinaisons ----
 
-# Liste des combinaisons talassa_code et talassa_intitule final post-transfos
-# pour un export simple à insérer dans le fichier de paramétrage
-liste_combinaisons <- agregation_carroyage %>%
-  select(talassa_code, talassa_intitule) %>%
-  distinct()
+# Liste des combinaisons liens talassa_code et talassa_intitule final post-transfos
+# pour un export simple permettant de renseigner les infos du fichier de paramétrage
+# du modèle TALASSA
+
+export_combinaisons <- FALSE
+
+if (export_combinaisons) {
+
+  liste_combinaisons <- agregation_carroyage %>%
+    select(talassa_code, talassa_intitule) %>%
+    distinct()
+
+  write.xlsx(
+    x = liste_combinaisons, 
+    file = paths$processed$params_combinaisons
+  )
+
+}
+
 
 # Exports ----
 st_write(
-  obj = agregation_hex,
-  dsn = paths$processed$hex_activites,
+  obj = agregation_final_codes,
+  dsn = path_final,
   driver = "gpkg",
   append = FALSE
 )
 
 st_write(
-  obj = agregation_hex2,
-  dsn = paths$processed$hex_activites_intitule,
+  obj = agregation_final_intitules,
+  dsn = path_final_wider,
   driver = "gpkg",
   append = FALSE
 )
 
-write.xlsx(
-  x = liste_combinaisons, 
-  file = paths$processed$params_combinaisons
-)
+

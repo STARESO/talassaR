@@ -34,7 +34,7 @@ raw:
   # Carroyages
   carroyage: "data/raw/carroyage/zone_biocenoses/"
   carroyage_hexcinquieme: "data/raw/carroyage/zone_biocenoses/grille_talassa_2025_cotier_hexagone_cinquiemedemile.gpkg"
-  carroyage_rect1mile: "data/raw/carroyage/zone_biocenoses/grille_carpediem_1m_2019_pnmcca_cotier.gpkg"
+  carroyage_arp: "data/raw/carroyage/zone_biocenoses/grille_carpediem_1m_2019_pnmcca_cotier.gpkg"
 
   # Références carroyage
   devcarroyage_activites: "data/raw/references_carroyage/reference_carroyage_activites_a_completer.xlsx"
@@ -50,12 +50,11 @@ raw:
   codes_ais_tocomplete: "data/raw/codes/reference_codes_ais_resoblo_acompleter.xlsx"
   codes_ais: "data/raw/codes/reference_codes_ais_resoblo.xlsx"
   codes_habitats: "data/raw/codes/reference_codes_habitats.xlsx"
-  codes_pressures: "data/raw/codes/reference_codes_pressures.xlsx"
+  codes_pressions: "data/raw/codes/reference_codes_pressions.xlsx"
 
   # Matrice sensibilité
   mat_sensibilite: "data/raw/matrices/matrice_sensibilite_habitats_format_lariviere.xlsx"
 
-  
 dev:
   # AIS
   ais_tempcompil: "data/processed/dev/ais/ais_mt_tempcompil.rds"
@@ -73,10 +72,10 @@ dev:
   donia_hex: "data/processed/dev/donia/donia_hex/"
   donia_rect: "data/processed/dev/donia/donia_rect/"
 
-
 processed:
   # Matrices
-  mat_sensibilites: "data/processed/matrices/sensibilites.rds"
+  mat_sensibilite: "data/processed/matrices/sensibilites.rds"
+  mat_sensibilite_check: "data/processed/matrices/sensibilites_pour_verification.xlsx"
 
   # Observatoire
   observatoire_survolusage: "data/processed/observatoire/us_med_pnmcca_observatoire_survols_usages_ofb_pts_4326.gpkg"
@@ -95,12 +94,15 @@ processed:
   talassa_donia: "data/processed/talassa_pts/us_med_pnmcca_talassa_donia_ofb_pts_4326.gpkg"
   talassa_plongee: "data/processed/talassa_pts/us_med_pnmcca_talassa_plongee_ofb_pts_4326.gpkg"
   talassa_ais: "data/processed/talassa_pts/us_med_pnmcca_talassa_ais_marinetraffic_pts_4326.gpkg"
-  talassa_ais_grid: "data/processed/talassa_pts/us_med_pnmcca_talassa_ais_grid_ofb_pol_4326.gpkg"
-  talassa_ais_grid_wide: "data/processed/talassa_pts/us_med_pnmcca_talassa_ais_grid_wide_ofb_pol_4326.gpkg"
+  talassa_ais_grid_hex: "data/processed/talassa_pts/us_med_pnmcca_talassa_ais_grid_hex_ofb_pol_4326.gpkg"
+  talassa_ais_grid_arp: "data/processed/talassa_pts/us_med_pnmcca_talassa_ais_grid_arp_ofb_pol_4326.gpkg"
+  talassa_ais_grid_wide_hex: "data/processed/talassa_pts/us_med_pnmcca_talassa_ais_grid_wide_hex_ofb_pol_4326.gpkg"
+  talassa_ais_grid_wide_arp: "data/processed/talassa_pts/us_med_pnmcca_talassa_ais_grid_wide_arp_ofb_pol_4326.gpkg"
   talassa_habitats: "data/processed/talassa_pts/eco_med_pnmcca_talassa_habitats_ofb_pol_4326.gpkg"
   talassa_grottes: "data/processed/talassa_pts/eco_med_pnmcca_talassa_grottes_ofb_pts_4326.gpkg"
-  talassa_habitats_intermediaire: "data/processed/talassa_pts/talassa_habitats_decoupe_intermediaire_par_hexcinquieme.gpkg"
-  
+  talassa_habitats_hexcinquieme: "data/processed/talassa_pts/talassa_habitats_decoupe_intermediaire_hexcinquieme.gpkg"
+  talassa_habitats_arp: "data/processed/talassa_pts/talassa_habitats_decoupe_intermediaire_arp.gpkg"
+
   # Données format Talassa maillage hexagonal
   hex_activites: "data/processed/talassa_hex/us_med_pnmcca_talassa_hex_activites_ofb_pol_4326.gpkg"
   hex_activites_intitule: "data/processed/talassa_hex/us_med_pnmcca_talassa_hex_activites_intitules_ofb_pol_4326.gpkg"
@@ -119,4 +121,3 @@ processed:
 
   # Modélisation
   params_combinaisons: "data/processed/params/talassa_liste_combinaisons_activites.xlsx"
-

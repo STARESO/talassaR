@@ -62,5 +62,6 @@ jointure_id <- function(
 
   # Elimination géométrie (sera remise en place lors de la jointure post-agrégation)
   data_joined <- data_joined %>%
-    st_drop_geometry()
+    st_drop_geometry() %>%
+    rename(id2 = id_name) # Nouveau nom vers id2 pour harmonisation maillage
 }

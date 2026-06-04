@@ -129,6 +129,7 @@ mt_all %>% count(status, sort = TRUE) # Statut navigation encodé
 mt_all %>% count(heading, sort = TRUE) # Direction de navigation
 mt_all %>% count(ship_country, sort = TRUE) # Pays d'attache
 
+
 mt_all %>% count(type_name, sort = TRUE) # Catégorie précise textuelle
 mt_all %>% count(ais_type_summary, sort = TRUE) # Catégorie générale
 mt_all %>% count(shiptype, sort = TRUE) # Catégorie standard encodée
@@ -139,6 +140,12 @@ mt_all %>% count(market, sort = TRUE) # Type d'activité générale
 hist(as.numeric(mt_all$distance_travelled))
 hist(as.numeric(mt_all$width))
 hist(as.numeric(mt_all$length))
+
+mt_all %>%
+  mutate(length = as.numeric(length)) %>%
+  count(length) %>%
+  arrange(length)
+
 
 # Check des variables types de bateaux
 types_comparison_all <- mt_all %>% 

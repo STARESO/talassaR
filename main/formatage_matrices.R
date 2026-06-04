@@ -116,24 +116,41 @@ sensibilite_better <- sensibilite_better %>%
   select(talassa_code, talassa_intitule, pression_code, pression_intitule, sensibilite, ic) %>%
   arrange(pression_code)
 
-# Transfo matrice vers format final talassa wider
-sensibilite_wider <- sensibilite_better %>%
-  rename(pre = sensibilite, icas = ic) %>% # renommer sensibilité et ic par suffixes modélisation
-  pivot_longer(cols = c(pre, icas)) %>% # allongement en une colonne par accolement valeurs sensi et indice de confiance valeur sensi
-  mutate(name = paste0(pression_code, "_", name)) %>% # noms de colonnes finaux
-  select(-c(pression_intitule, pression_code)) %>% 
-  pivot_wider(names_from = name, values_from = value) # Pivot large pour avoir 1 ligne = 1 habitat
 
-# Check colonnes où toutes les valeurs sont absentes
-sapply(sensibilite_wider[,-c(1, 2)], \(x) {all(is.na(x), na.rm = TRUE)})
+# Fonction de finalisation matrice sensibilité format large
+# avec choix type intitulé colonnes (noms ou codes)
+make_wider <- function(sensibilite, col_type = "code") {
 
-# Elimination colonnes pressions sans données
-sensibilite_wider <- sensibilite_wider %>%
-  select_if(~ !all(is.na(.)))
+  if (col_type == "code") {
+    sensibilite_wider <- sensibilite %>% 
+      rename(pre = sensibilite, icas = ic) %>% # renommer sensibilité et ic par suffixes modélisation
+      pivot_longer(cols = c(pre, icas)) %>%# allongement en une colonne par accolement valeurs sensi et indice de confiance valeur sensi
+      mutate(name = paste0(pression_code, "_", name)) %>%
+      select(-c(pression_intitule, pression_code)) %>% 
+      pivot_wider(names_from = name, values_from = value) # Pivot large pour avoir 1 ligne = 1 habitat  
+  }
 
-# Remplacement des NA par 99
-sensibilite_wider <- sensibilite_wider %>%
-  mutate(across(everything(), ~ ifelse(is.na(.), 99, .)))
+  # Check colonnes où toutes les valeurs sont absentes
+  sapply(sensibilite_wider[,-c(1, 2)], \(x) {all(is.na(x), na.rm = TRUE)})
+
+  # Elimination colonnes pressions sans données
+  sensibilite_wider <- sensibilite_wider %>%
+    select_if(~ !all(is.na(.)))
+
+  # Remplacement des NA par 99
+  sensibilite_wider <- sensibilite_wider %>%
+    mutate(across(everything(), ~ ifelse(is.na(.), 99, .)))
+  
+  return(sensibilite_wider)
+}
+
+# Version utilisable par le modèle à intégrer aux données habitats
+sensibilite_wider_model <- make_wider(sensibilite_better, col_type = "code")
+
+sensibilite_to_check <- sensibilite_better %>%
+  mutate(across(c(sensibilite, ic), ~ ifelse(is.na(.), 99, .)))
+
 
 # Exports ----
-saveRDS(object = sensibilite_wider, file = paths$processed$mat_sensibilites)
+saveRDS(object = sensibilite_wider_model, file = paths$processed$mat_sensibilite)
+openxlsx::write.xlsx(x = sensibilite_to_check, file = paths$processed$mat_sensibilite_check)

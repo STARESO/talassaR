@@ -171,19 +171,19 @@ aggregate_ais_to_grid <- function(
 
   agg <- agg %>%
     rename(talassa_code = all_of(activity_code_field)) %>%
-    rename(id = all_of(id_name)) %>%
+    rename(id2 = all_of(id_name)) %>%
     mutate(
       talassa_intitule = .data[[activity_intitule_field]]
     ) %>%
-    select(id, talassa_code, talassa_intitule, activity_value, everything())
+    select(id2, talassa_code, talassa_intitule, activity_value, everything())
 
   # Changement nom id carroyage pour jointure geometrie
   carroyage_geometry <- carroyage %>%
     select(all_of(id_name)) %>%
-    rename(id = all_of(id_name))
+    rename(id2 = all_of(id_name))
 
   # Réintégration géométrie du carroyage pour pouvoir exporter en GeoPackage
-  agg <- left_join(agg, carroyage_geometry, by = "id")
+  agg <- left_join(agg, carroyage_geometry, by = "id2")
 
   agg
 }

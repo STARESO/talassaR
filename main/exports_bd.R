@@ -46,7 +46,7 @@ config <- yaml.load_file("config/secrets.yml") # Secrets de config connection db
 # Choix généraux
 choix_carroyage <- "arp"
 overwrite <- TRUE # Flag d'écrasement des BD existantes. Attention, enregistrement des données dans la BD par écrasement !
-schema_chosen <- "source_hex" # Nom du schema choisi
+schema_chosen <- "source_data" # Nom du schema choisi
 
 # Prise en compte du choix
 if (choix_carroyage == "hex5") {

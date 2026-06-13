@@ -24,11 +24,12 @@ intensite_computation <- function(
   scale_min = 0.01,
   scale_max = 1
 ) {
-  # Calcul des poids par entités sur la base de formules et variables à disposition
+  # Calcul des poids par entités sur la base de formules et variables à disposition permettant
+  # de faire varier l'intensité de l'activité en plus du simple nombre d'entités ponctuelles présentes
   data_new <- data %>%
     rowwise() %>%
     mutate(
-      cweight = ifelse(
+      cweight = ifelse( # Poids associé à chaque entité selon la formule de modification d'intensité
         is.na(formule),
         1, # A verifier si ok dans toutes les situations
         eval(parse(text = formule))
@@ -42,12 +43,12 @@ intensite_computation <- function(
     # Somme par cellule et par activité
     group_by(.data[[id_carroyage]], talassa_code, talassa_intitule) %>%
     summarize(
-      intensite = sum(cweight),
+      intensite = sum(cweight), # Somme des poids
       ic = unique(ic) # Ici ou autre endroit plus adapté ?
     ) %>%
     # Réechelonnage par activité entre valeurs scale_min et scale_max
-    group_by(talassa_code, talassa_intitule) %>% # @awoehrel TODO: check si changement pour normalisation sans activité 
-    mutate(intensite = scales::rescale(intensite, to = c(scale_min, scale_max))) %>%
+    group_by(talassa_code, talassa_intitule) %>% # @awoehrel TODO: check si changement pour normalisation sans activité. GRANDE DIFFERENCE SI CHOIX UNGROUP()
+    mutate(intensite = scales::rescale(intensite, to = c(scale_min, scale_max))) %>% # Peut fonctionner avec ungroup() sans groupement par activité si toutes les formules sont similaires
     arrange(talassa_code, intensite)
 
   # Ajout de la colonne type pour les étapes prochaines

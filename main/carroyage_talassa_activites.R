@@ -132,7 +132,8 @@ formula_ref <- read.xlsx(
 
 # Jointure ID maillage ----
 
-# Jointure avec fonction personnalisée jointure_id (cf fct_jointure_id.R)
+# Jointure des identifiants de maillage aux jeux de données des activités
+# avec la fonction personnalisée jointure_id.R
 resultats_carroyage <- map(
   .x = list(survolus_talassa, peche_talassa, donia_talassa, plongee_talassa),
   .f = ~ jointure_id(carroyage = carroyage, data = .x, id_name = "id2")
@@ -195,7 +196,7 @@ plongee_carroyage <- formula_ref %>%
     by = join_by(talassa_code)
   )
 
-# Passage des temps de pêche depuis format caractères HMS vers difftime en secondes vers numérique
+# Passage des temps de pêche depuis format caractères HMS vers difftime en secondes numériques
 peche_carroyage <- peche_carroyage %>%
   mutate(across(
     .cols = c(temps_pech, temps_pe_1),
@@ -268,6 +269,10 @@ nombre_agregations <- agregation_carroyage %>%
 
 nombre_agregations # Ok : 1 valeur uniquement par combinaison activité-id_carroyage
 
+# Organisation par codes talassa
+agregation_carroyage <- agregation_carroyage %>%
+  arrange(talassa_code, id2) %>%
+  ungroup()
 
 ## Corrections pour les absences d'activités ----
 
@@ -279,15 +284,10 @@ agregation_carroyage <- agregation_carroyage %>%
   complete(id2, nesting(talassa_code, talassa_intitule)) %>% # combinaisons manquantes
   mutate(intensite = replace_na(intensite, 0)) %>% # remplacement na par intensité 0
   group_by(talassa_code) %>%
-  mutate(ic = replace_na(ic, round(median(ic, na.rm = TRUE)))) # remplacement ic manquants par médiane par activité
-
-# Organisation par codes talassa
-agregation_carroyage <- agregation_carroyage %>%
-  arrange(talassa_code, id2) %>%
+  mutate(ic = replace_na(ic, round(median(ic, na.rm = TRUE)))) %>% # remplacement ic manquants par médiane par activité
   ungroup()
 
-
-# Donn"es vers format final export ----
+# Données vers format final export ----
 
 ## Version noms de colonnes -> codes talassa ---- 
 
@@ -306,18 +306,18 @@ agregation_longer <- agregation_carroyage %>%
 agregation_wider <- agregation_longer %>%
   pivot_wider(names_from = name, values_from = value)
 
-# Jointure spatiale ID activités - hexagones 
+# Jointure spatiale des activités et du carroyage
 agregation_final_codes <- left_join(
   x = carroyage,
   y = agregation_wider,
   by = join_by(id2)
 )
 
-# Transfo format final
+# Transfo format final - traitement des mailles sans activité
 agregation_final_codes <- agregation_final_codes %>%
-  mutate(across(-c(geometry, id2), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
+  mutate(across(-c(geometry, id2) & contains("_iq"), ~ coalesce(., 5))) %>% # Remplacement des NA pour les iq par 5 (mailles sans aucune activité)
+  mutate(across(-c(geometry, id2), ~ coalesce(., 0))) %>% # Remplacement des NA pour les intensités par 0 (mailles sans aucune activité)
   st_as_sf()
-
 
 ## Version noms de colonnes -> intituleés talassa ----
 
@@ -337,9 +337,8 @@ agregation_longer_intitule <- agregation_carroyage %>%
 agregation_wider_intitule <- agregation_longer_intitule %>%
   pivot_wider(names_from = name, values_from = value)
 
-# Jointure spatiale ID activités - hexagones 
+# Jointure spatiale des activités et du carroyage
 
-# Jointure
 agregation_finale_intitules <- left_join(
   x = carroyage,
   y = agregation_wider_intitule,
@@ -348,9 +347,9 @@ agregation_finale_intitules <- left_join(
 
 # Transfo format final
 agregation_final_intitules <- agregation_finale_intitules %>%
-  mutate(across(-c(geometry, id2), ~ coalesce(., 0))) %>% # Attention voir si remplacement NA pertinent
+  mutate(across(-c(geometry, id2) & contains("_iq"), ~ coalesce(., 5))) %>% # Remplacement des NA pour les iq par 5 (mailles sans aucune activité)
+  mutate(across(-c(geometry, id2), ~ coalesce(., 0))) %>% # Remplacement des NA pour les intensités par 0 (mailles sans aucune activité)
   st_as_sf()
-
 
 # Liste combinaisons ----
 
@@ -358,10 +357,9 @@ agregation_final_intitules <- agregation_finale_intitules %>%
 # pour un export simple permettant de renseigner les infos du fichier de paramétrage
 # du modèle TALASSA
 
-export_combinaisons <- FALSE
+export_combinaisons <- TRUE
 
 if (export_combinaisons) {
-
   liste_combinaisons <- agregation_carroyage %>%
     select(talassa_code, talassa_intitule) %>%
     distinct()
@@ -370,7 +368,6 @@ if (export_combinaisons) {
     x = liste_combinaisons, 
     file = paths$processed$params_combinaisons
   )
-
 }
 
 # Exports ----

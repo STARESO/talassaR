@@ -323,7 +323,7 @@ agregation_final_codes <- agregation_final_codes %>%
 ## Version noms de colonnes -> intituleés talassa ----
 
 # Passage au format large (colonnes par code activité)
-agregation_longer_intitule <- agregation_carroyage %>%
+agregation_longer_intitules <- agregation_carroyage %>%
   select(-talassa_code) %>%
   mutate(talassa_intitule = str_replace_all(talassa_intitule, " ", "_")) %>%
   pivot_longer(cols = c(intensite, ic)) %>%
@@ -335,14 +335,14 @@ agregation_longer_intitule <- agregation_carroyage %>%
   arrange(name, id2)
 
 
-agregation_wider_intitule <- agregation_longer_intitule %>%
+agregation_wider_intitules <- agregation_longer_intitules %>%
   pivot_wider(names_from = name, values_from = value)
 
 # Jointure spatiale des activités et du carroyage
 
 agregation_finale_intitules <- left_join(
   x = carroyage,
-  y = agregation_wider_intitule,
+  y = agregation_wider_intitules,
   by = join_by(id2)
 )
 

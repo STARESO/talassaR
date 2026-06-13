@@ -82,10 +82,12 @@ process_habitats_grid <- function(grid, habitats_talassa, grid_id_col) {
   # Renommer la colonne d'ID en "id2" pour uniformité interne
   grid <- grid %>%
     rename(id2 = .data[[grid_id_col]]) %>%
+    mutate(id2 = as.numeric(id2)) %>%
     st_transform(., crs = 4326)
 
   habitats_talassa <- habitats_talassa %>%
-    rename(id2 = .data[[grid_id_col]])
+    rename(id2 = .data[[grid_id_col]]) %>%
+    mutate(id2 = as.numeric(id2)) 
 
   # Renommer la géométrie si nécessaire pour grille
   if ("geom" %in% names(grid)) {

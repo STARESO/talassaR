@@ -21,6 +21,7 @@ intensite_computation <- function(
   data,
   type,
   id_carroyage = "id2",
+  scale_type, # Or "by_activity"
   scale_min = 0.01,
   scale_max = 1
 ) {
@@ -44,14 +45,29 @@ intensite_computation <- function(
     group_by(.data[[id_carroyage]], talassa_code, talassa_intitule) %>%
     summarize(
       intensite = sum(cweight), # Somme des poids
-      ic = unique(ic) # Ici ou autre endroit plus adapté ?
-    ) %>%
-    # Réechelonnage par activité entre valeurs scale_min et scale_max
-    group_by(talassa_code, talassa_intitule) %>% # @awoehrel TODO: check si changement pour normalisation sans activité. GRANDE DIFFERENCE SI CHOIX UNGROUP()
-    mutate(intensite = scales::rescale(intensite, to = c(scale_min, scale_max))) %>% # Peut fonctionner avec ungroup() sans groupement par activité si toutes les formules sont similaires
-    arrange(talassa_code, intensite)
+      ic = unique(ic) # unique des ic (normalement identique pour une même activité pour un même jeu de données)
+    )
 
-  # Ajout de la colonne type pour les étapes prochaines
+   
+  # Réechelonnage sur toutes les activités entre valeurs scale_min et scale_max (conserve différences activités)
+  if (scale_type == "all_activity") {
+    data_new <- data_new %>%
+      ungroup() %>%
+      mutate(intensite = scales::rescale(intensite, to = c(scale_min, scale_max))) %>% 
+      arrange(talassa_code, intensite)
+
+  # Réechelonnage par activité entre valeurs scale_min et scale_max (indépendance de chaque activité)
+  } else if (scale_type == "by_activity") {
+    data_new <- data_new %>%
+      group_by(talassa_code, talassa_intitule) %>%
+      mutate(intensite = scales::rescale(intensite, to = c(scale_min, scale_max))) %>% 
+      arrange(talassa_code, intensite)
+      
+  } else {
+    stop("Mauvais choix du paramètre scale_type, choisir 'all_activity' ou 'by_activity'")
+  }
+
+  # Ajout de la colonne type pour les prochaines étapes
   data_new <- data_new %>%
     mutate(type = type)
 }

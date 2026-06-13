@@ -39,7 +39,7 @@ source("r/fct_jointure_id.R")
 source("r/fct_intensite_computation.R")
 
 ## Choix du type de carroyage pour faire tourner le script ----
-choix_carroyage <- "arp" # Choix voir condition if ci-dessous
+choix_carroyage <- "hex5" # Choix voir condition if ci-dessous
 
 ## Import des données -----
 
@@ -224,17 +224,18 @@ ais_carroyage <- left_join(
   by = "talassa_code"
 )
 
-# Calculs intensité par maille pour les principaux datasets
-survolus_carroyage2 <- intensite_computation(data = survolus_carroyage, type = "survolus")
-peche_carroyage2 <- intensite_computation(data = peche_carroyage, type = "peche")
-donia_carroyage2 <- intensite_computation(data = donia_carroyage, type = "donia")
-plongee_carroyage2 <- intensite_computation(data = plongee_carroyage, type = "plongee")
-ais_carroyage2 <- intensite_computation(data = ais_carroyage, type = "ais")
+## Calculs intensité par maille pour les principaux datasets ----
+# Attention, checker intensité computation avec scale_type
+survolus_carroyage2 <- intensite_computation(data = survolus_carroyage, type = "survolus", scale_type = "all_activity")
+peche_carroyage2 <- intensite_computation(data = peche_carroyage, type = "peche", scale_type = "all_activity")
+donia_carroyage2 <- intensite_computation(data = donia_carroyage, type = "donia", scale_type = "all_activity")
+plongee_carroyage2 <- intensite_computation(data = plongee_carroyage, type = "plongee", scale_type = "all_activity")
+ais_carroyage2 <- intensite_computation(data = ais_carroyage, type = "ais", scale_type = "all_activity")
+
 
 # Agregation d'intensité d'activité entre jeux de données ----
 
 ## Processus initial agregation ----
-
 # Combinaison des jeux de données
 agregation_carroyage <- rbind(
   survolus_carroyage2,

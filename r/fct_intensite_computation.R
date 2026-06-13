@@ -13,7 +13,10 @@
 #' =============================================================================
 
 
-# Calcul intensité par maille et activités
+# Calcul intensité par maille et activités à partir d'un jeu de données à disposition. 
+#' @data nom de la variable des données sources
+#' @type type de jeu de données source
+
 intensite_computation <- function(
   data,
   type,
@@ -43,7 +46,7 @@ intensite_computation <- function(
       ic = unique(ic) # Ici ou autre endroit plus adapté ?
     ) %>%
     # Réechelonnage par activité entre valeurs scale_min et scale_max
-    group_by(talassa_code, talassa_intitule) %>%
+    group_by(talassa_code, talassa_intitule) %>% # @awoehrel TODO: check si changement pour normalisation sans activité 
     mutate(intensite = scales::rescale(intensite, to = c(scale_min, scale_max))) %>%
     arrange(talassa_code, intensite)
 

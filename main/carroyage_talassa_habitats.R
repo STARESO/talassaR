@@ -1,16 +1,16 @@
 #' ---
-#' title : "talassaR - maillage_talassa_habitats"
+#' title : "talassaR - carroyage_talassa_habitats"
 #' author : Aubin Woehrel
 #' creation date : 2026-03-18
 #' ---
 #'
 #' =============================================================================
 #'
-#' talassaR : Maillage des données d'habitat
+#' talassaR : carroyage des données d'habitat
 #'
 #' Description :
 #' Script permettant de passer des données d'habitats au format TALASSA polygone
-#' ou ponctuel vers un format au maillage TALASSA choisi.
+#' ou ponctuel vers un format au carroyage TALASSA choisi.
 #'
 #' =============================================================================
 
@@ -66,7 +66,7 @@ which(st_is_valid(cote_corse) == FALSE)
 #' Traitement des habitats sur grille carroyée
 #'
 #' @param grid sf object - La grille (carroyage) à utiliser
-#' @param habitats_talassa sf object - Habitats déjà découpés selon le maillage via Qgis
+#' @param habitats_talassa sf object - Habitats déjà découpés selon le carroyage via Qgis
 #' @param grid_id_col character - Nom de la colonne ID dans la grille d'entrée (ex: "id_hex", "id_square")
 #'
 #' @return list avec deux éléments:
@@ -217,14 +217,14 @@ process_habitats_grid <- function(grid, habitats_talassa, grid_id_col) {
 }
 
 
-# Maillage habitats hex5
+# carroyage habitats hex5
 final_hex5 <- process_habitats_grid(
   grid = carroyage_hexcinquieme, 
   habitats_talassa = habitats_talassa_hex,
   grid_id_col = "id_hex"
 )
 
-# Maillage habitats arp
+# carroyage habitats arp
 final_arp <- process_habitats_grid(
   grid = carroyage_arp, 
   habitats_talassa = habitats_talassa_arp,

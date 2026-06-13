@@ -1,27 +1,12 @@
 #' ---
-#' title : "talassaR - maillage_talassa_ais"
+#' title : "talassaR - carroyage_talassa_ais"
 #' author : Aubin Woehrel
 #' creation date : 2026-06-03
 #' ---
 #'
 #' =============================================================================
 #'
-#' talassaR : Maillage des données AIS
-#'
-#' Description :
-#' Script de préparation et d'agrégation des pings AIS sur le carroyage TALASSA.
-#'
-#' =============================================================================
-
-#' ---
-#' title : "talassaR - maillage_talassa_ais"
-#' author : Aubin Woehrel
-#' creation date : 2026-06-03
-#' ---
-#'
-#' =============================================================================
-#'
-#' talassaR : Maillage des données AIS
+#' talassaR : carroyage des données AIS
 #'
 #' Description :
 #' Script de calcul de l'état de mouvement des pings AIS et agrégation

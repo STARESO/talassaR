@@ -1,16 +1,16 @@
 #' ---
-#' title : "talassaR - maillage_talassa_activites"
+#' title : "talassaR - carroyage_talassa_activites"
 #' author : Aubin Woehrel
 #' creation date : 2026-02-12
 #' ---
 #'
 #' =============================================================================
 #'
-#' talassaR : Maillage des données activités
+#' talassaR : Carroyage des données activités
 #'
 #' Description :
 #' Script permettant de passer des données activités ponctuelles au format
-#' TALASSA vers des données activités intégrées au maillage TALASSA choisi.
+#' TALASSA vers des données activités intégrées au carroyage TALASSA choisi.
 #'
 #' Note : ic == indice de confiance
 #'
@@ -39,7 +39,7 @@ source("r/fct_jointure_id.R")
 source("r/fct_intensite_computation.R")
 
 ## Choix du type de carroyage pour faire tourner le script ----
-choice_carroyage <- "arp" # Choix voir condition if ci-dessous
+choix_carroyage <- "arp" # Choix voir condition if ci-dessous
 
 ## Import des données -----
 
@@ -50,13 +50,13 @@ donia_talassa <- st_read(paths$processed$talassa_donia)
 plongee_talassa <- st_read(paths$processed$talassa_plongee)
 
 # Paramètres spécifique au maillage
-if (choice_carroyage == "hex5") { # Carroyage hexagonal cinquième de mile nautique
+if (choix_carroyage == "hex5") { # Carroyage hexagonal cinquième de mile nautique
   carroyage <- st_read(paths$raw$carroyage_hexcinquieme) %>% rename(id2 = "id_hex") # Carroyage
   ais_talassa <- st_read(paths$processed$talassa_ais_grid_hex) # AIS
   path_final <- paths$processed$hex_activites # Export activités version codes talassa
   path_final_wider <- paths$processed$hex_activites_intitule # Export activités version intitules talassa
 
-} else if (choice_carroyage == "arp") { # Carroyage carré 1 mile nautique (modèle arp)
+} else if (choix_carroyage == "arp") { # Carroyage carré 1 mile nautique (modèle arp)
   carroyage <- st_read(paths$raw$carroyage_arp)
   ais_talassa <- st_read(paths$processed$talassa_ais_grid_arp)
   path_final <- paths$processed$arp_activites # Export activités version codes talassa
@@ -231,6 +231,10 @@ plongee_carroyage2 <- intensite_computation(data = plongee_carroyage, type = "pl
 ais_carroyage2 <- intensite_computation(data = ais_carroyage, type = "ais")
 
 # Agregation d'intensité d'activité entre jeux de données ----
+
+## Processus initial agregation ----
+
+# Combinaison des jeux de données
 agregation_carroyage <- rbind(
   survolus_carroyage2,
   peche_carroyage2,
@@ -248,15 +252,15 @@ nombre_agregations <- agregation_carroyage %>%
 
 nombre_agregations # 792 hexagones avec 2 sources et 178 avec 3 sources
 
-# Calcul moyenne intensité d'activité
+# Calcul moyenne intensité d'activité pour les sources de données multiples
 agregation_carroyage <- agregation_carroyage %>%
   group_by(id2, talassa_code, talassa_intitule) %>%
   summarize(
-    intensite = mean(intensite),
-    ic = min(ic) # IC pris comme le minimum de l'IC
+    intensite = mean(intensite), # Intensité totale moyenne par maille par type d'activité
+    ic = round(median(ic)) # IC pris comme l'arrondi de la médiane des IC
   )
 
-# Verification nombre agregations
+# Verification nombre agregations post-moyenne
 nombre_agregations <- agregation_carroyage %>%
   count(id2, talassa_code, name = "nombre_jeux_données") %>%
   ungroup() %>%
@@ -264,31 +268,43 @@ nombre_agregations <- agregation_carroyage %>%
 
 nombre_agregations # Ok : 1 valeur uniquement par combinaison activité-id_carroyage
 
+
+## Corrections pour les absences d'activités ----
+
+# Complétion du jeu de données par les combinaisons manquantes id2 & activités, 
+# afin d'obtenir des valeurs pour toutes les mailles et toutes les activités
+# Intensité des activités non présentes prend la valeur de 0 et l'indice de 
+# confiance de l'absence des données prends la valeur médiane des ic par activités
+agregation_carroyage <- agregation_carroyage %>%
+  complete(id2, nesting(talassa_code, talassa_intitule)) %>% # combinaisons manquantes
+  mutate(intensite = replace_na(intensite, 0)) %>% # remplacement na par intensité 0
+  group_by(talassa_code) %>%
+  mutate(ic = replace_na(ic, round(median(ic, na.rm = TRUE)))) # remplacement ic manquants par médiane par activité
+
 # Organisation par codes talassa
 agregation_carroyage <- agregation_carroyage %>%
   arrange(talassa_code, id2) %>%
   ungroup()
 
 
-# Version noms de colonnes -> codes talassa ----
+# Donn"es vers format final export ----
 
-# Passage au format large (colonnes par code activité)
+## Version noms de colonnes -> codes talassa ---- 
+
+# Passage au format long avec les bons intitulés permettant le passage large par la suite
 agregation_longer <- agregation_carroyage %>%
-  select(-talassa_intitule) %>%
-  pivot_longer(cols = c(intensite, ic)) %>%
-  mutate(name = case_when(
+  select(-talassa_intitule) %>% # Elimination intitules pour conserver que les codes
+  pivot_longer(cols = c(intensite, ic)) %>% # pivot long des valeurs iq ou code
+  mutate(name = case_when( # Création du futur nom de colonne (suffixe _iq si indice de confiance activités)
     name == "intensite" ~ talassa_code, # code_talassa
     TRUE ~ paste0(talassa_code, "_iq") # code_talassa + ic
   )) %>%
   select(-talassa_code) %>%
   arrange(name, id2)
 
+# Passage au format large (1 colonne par code activité)
 agregation_wider <- agregation_longer %>%
-  pivot_wider(
-    names_from = name,
-    values_from = value,
-    values_fill = 0
-  )
+  pivot_wider(names_from = name, values_from = value)
 
 # Jointure spatiale ID activités - hexagones 
 agregation_final_codes <- left_join(
@@ -303,7 +319,7 @@ agregation_final_codes <- agregation_final_codes %>%
   st_as_sf()
 
 
-# Version noms de colonnes -> intituleés talassa ----
+## Version noms de colonnes -> intituleés talassa ----
 
 # Passage au format large (colonnes par code activité)
 agregation_longer_intitule <- agregation_carroyage %>%
@@ -319,11 +335,7 @@ agregation_longer_intitule <- agregation_carroyage %>%
 
 
 agregation_wider_intitule <- agregation_longer_intitule %>%
-  pivot_wider(
-    names_from = name,
-    values_from = value,
-    values_fill = 0
-  )
+  pivot_wider(names_from = name, values_from = value)
 
 # Jointure spatiale ID activités - hexagones 
 
@@ -360,7 +372,6 @@ if (export_combinaisons) {
   )
 
 }
-
 
 # Exports ----
 st_write(

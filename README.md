@@ -485,14 +485,6 @@ Some scripts include individual author information in their headers. Please chec
 
 ---
 
-## License
-
-No license file is currently provided in the repository.
-
-Before reuse, redistribution or public release, add an explicit `LICENSE` file and clarify the usage rights of the code and associated data.
-
----
-
 ## Citation
 
 If you use this repository or outputs derived from it, please cite the associated TALASSA study/report and mention the `talassaR` preprocessing workflow.

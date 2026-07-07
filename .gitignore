@@ -5,5 +5,6 @@
 config.yml
 /data/
 /output/
+/sql/
 .positai
 config/secrets.yml

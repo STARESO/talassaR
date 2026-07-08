@@ -38,7 +38,7 @@ library("DBI")
 con <- dbConnect(
   RPostgres::Postgres(),
   dbname   = "postgres",
-  host     = "localhost",     # or IP, e.g., "192.168.1.100"
+  host     = "localhost",
   port     = 5432,
   user     = "postgres",
   password = "postgres"
